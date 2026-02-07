@@ -37,8 +37,14 @@ function App() {
     refetch();
   }, [refetch]);
 
-  // Random champion
+  // Random champion - ouvrir la modal sans champion
   const handleRandomChampion = useCallback(() => {
+    setRandomChampion(null); // Reset pour montrer le sélecteur de rôle
+    setShowRandomChampion(true);
+  }, []);
+
+  // Tirer au sort un champion avec les filtres actuels
+  const handleRollRandom = useCallback(() => {
     const laneRolesFilter = randomLaneRole === 'all' ? undefined : [randomLaneRole];
     const random = getRandomUnplayedChampion(champions, {
       tags: filters.tags.length > 0 ? filters.tags : undefined,
@@ -48,7 +54,6 @@ function App() {
 
     if (random) {
       setRandomChampion(random);
-      setShowRandomChampion(true);
     } else {
       alert('Aucun champion non joué ne correspond aux critères !');
     }
@@ -57,6 +62,7 @@ function App() {
   // Fermer la modal random
   const handleCloseRandom = () => {
     setShowRandomChampion(false);
+    setRandomChampion(null);
   };
 
   // Jouer le champion aléatoire
@@ -274,19 +280,7 @@ function App() {
                   <button
                     type="button"
                     className="btn-primary"
-                    onClick={() => {
-                      const laneRolesFilter = randomLaneRole === 'all' ? undefined : [randomLaneRole as LaneRole];
-                      const random = getRandomUnplayedChampion(champions, {
-                        tags: filters.tags.length > 0 ? filters.tags : undefined,
-                        partypes: filters.partypes.length > 0 ? filters.partypes : undefined,
-                        laneRoles: laneRolesFilter,
-                      });
-                      if (random) {
-                        setRandomChampion(random);
-                      } else {
-                        alert('Aucun champion non joué ne correspond aux critères !');
-                      }
-                    }}
+                    onClick={handleRollRandom}
                   >
                     Tirer au sort
                   </button>
@@ -328,9 +322,7 @@ function App() {
                 </div>
 
                 <div className="modal-actions">
-                  <button type="button" className="btn-secondary" onClick={() => {
-                    setRandomChampion(null);
-                  }}>
+                  <button type="button" className="btn-secondary" onClick={handleRollRandom}>
                     Un autre
                   </button>
                   <button
