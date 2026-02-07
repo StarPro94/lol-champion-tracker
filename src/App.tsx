@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useChampions } from './hooks/useChampions';
 import { useFilters } from './hooks/useFilters';
+import { useMilestone } from './hooks/useMilestone';
+import { useStreak } from './hooks/useStreak';
+import { useSound } from './hooks/useSound';
 import { togglePlayed, toggleLaneRole } from './utils/storage';
 import { getRandomUnplayedChampion } from './utils/filters';
 import { ProgressBar } from './components/ProgressBar';
@@ -9,6 +12,11 @@ import { FilterPanel } from './components/FilterPanel';
 import { StatsPanel } from './components/StatsPanel';
 import { ChampionGrid } from './components/ChampionGrid';
 import { ImportExport } from './components/ImportExport';
+import { MilestoneCelebration } from './components/MilestoneCelebration';
+import { StreakCounter } from './components/StreakCounter';
+import { SoundToggle } from './components/SoundToggle';
+import { AuthButton } from './components/AuthButton';
+import { RiotAccountLink } from './components/RiotAccountLink';
 import type { LaneRole } from './types/champion';
 import './App.css';
 
@@ -25,11 +33,36 @@ function App() {
   const playedCount = champions.filter((c) => c.isPlayed).length;
   const totalCount = champions.length;
 
+  // Satisfying systems
+  const { celebration, dismissCelebration } = useMilestone(playedCount, totalCount);
+  const { streak, isVisible: streakVisible, incrementStreak, resetStreak } = useStreak();
+  const { playClickSound, playMilestoneSound } = useSound();
+
+  // Play milestone sound when celebration appears
+  useEffect(() => {
+    if (celebration) {
+      playMilestoneSound();
+    }
+  }, [celebration, playMilestoneSound]);
+
   // Toggle joué
   const handleToggle = useCallback((championId: string) => {
+    const champion = champions.find(c => c.id === championId);
+    const wasPlayed = champion?.isPlayed ?? false;
+
     togglePlayed(championId);
+    playClickSound();
+
+    // Increment streak when marking a new champion as played
+    if (!wasPlayed) {
+      incrementStreak();
+    } else {
+      // Reset streak when unchecking (optional - removes the streak feeling)
+      resetStreak();
+    }
+
     refetch();
-  }, [refetch]);
+  }, [champions, incrementStreak, resetStreak, playClickSound, refetch]);
 
   // Toggle rôle lane
   const handleLaneRoleToggle = useCallback((championId: string, role: LaneRole) => {
@@ -139,6 +172,9 @@ function App() {
           </div>
 
           <div className="header-right">
+            <AuthButton />
+            <RiotAccountLink />
+            <SoundToggle />
             <button
               type="button"
               className="random-champion-button"
@@ -338,6 +374,12 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Satisfying Systems */}
+      {celebration && (
+        <MilestoneCelebration milestone={celebration} onClose={dismissCelebration} />
+      )}
+      {streakVisible && <StreakCounter count={streak} />}
     </div>
   );
 }

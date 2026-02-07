@@ -1,0 +1,188 @@
+.milestone-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.milestone-content {
+  position: relative;
+  text-align: center;
+  padding: 2.5rem 2rem;
+  background: linear-gradient(135deg, var(--color-bg-secondary), var(--color-bg-primary));
+  border: 2px solid var(--milestone-color);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 0 60px var(--milestone-color),
+              0 20px 60px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  width: 90%;
+  animation: milestoneScaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1.55);
+}
+
+@keyframes milestoneScaleIn {
+  0% {
+    transform: scale(0.5) rotate(-10deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+.milestone-emoji {
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
+  animation: emojiBounce 0.6s ease-out 0.3s both;
+}
+
+@keyframes emojiBounce {
+  0% { transform: scale(0) translateY(20px); }
+  50% { transform: scale(1.2) translateY(-10px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+.milestone-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.milestone-trophy {
+  width: 80px;
+  height: 80px;
+  color: var(--milestone-color);
+  animation: trophyGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes trophyGlow {
+  from {
+    filter: drop-shadow(0 0 10px var(--milestone-color));
+    transform: scale(1);
+  }
+  to {
+    filter: drop-shadow(0 0 30px var(--milestone-color));
+    transform: scale(1.05);
+  }
+}
+
+.milestone-title {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: var(--milestone-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.milestone-message {
+  margin: 0 0 1.5rem;
+  font-size: 1.125rem;
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.milestone-type-badge {
+  display: inline-block;
+  padding: 0.375rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--milestone-gradient);
+  color: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+}
+
+.milestone-btn {
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-bg-primary);
+  background: var(--milestone-gradient);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.milestone-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px var(--milestone-color);
+}
+
+.milestone-btn:active {
+  transform: translateY(0);
+}
+
+/* Confetti effect */
+.milestone-content::before,
+.milestone-content::after {
+  content: '🎉';
+  position: absolute;
+  font-size: 2rem;
+  animation: confettiFall 3s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+.milestone-content::before {
+  top: -20px;
+  left: 20px;
+  animation-delay: 0s;
+}
+
+.milestone-content::after {
+  top: -20px;
+  right: 20px;
+  animation-delay: 0.5s;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(200px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .milestone-overlay,
+  .milestone-content,
+  .milestone-emoji,
+  .milestone-trophy,
+  .milestone-btn {
+    animation: none !important;
+  }
+
+  .milestone-content::before,
+  .milestone-content::after {
+    display: none;
+  }
+}

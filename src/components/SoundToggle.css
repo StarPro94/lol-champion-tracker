@@ -1,0 +1,108 @@
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sound-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sound-button:hover {
+  border-color: var(--color-accent-blue);
+  color: var(--color-accent-blue);
+  transform: translateY(-1px);
+}
+
+.sound-button:active {
+  transform: translateY(0);
+}
+
+.sound-button.sound-on {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: rgba(81, 207, 102, 0.1);
+}
+
+.sound-button.sound-on:hover {
+  background: rgba(81, 207, 102, 0.2);
+  box-shadow: 0 0 12px rgba(81, 207, 102, 0.4);
+}
+
+.volume-slider-container {
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  animation: sliderSlideIn 0.2s ease;
+}
+
+@keyframes sliderSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 4px;
+  background: var(--color-bg-tertiary);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--color-accent-blue);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: var(--color-accent-gold);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--color-accent-blue);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: var(--color-accent-gold);
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .volume-slider {
+    width: 60px;
+  }
+}

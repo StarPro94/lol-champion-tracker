@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { ChampionWithState, LaneRole } from '../types/champion';
 import { LANE_ROLES } from '../types/champion';
 import { getTagColor } from '../utils/ddragon';
+import { ClickParticles } from './ClickParticles';
 import './ChampionCard.css';
 
 interface ChampionCardProps {
@@ -16,6 +17,8 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
   onLaneRoleToggle,
 }) => {
   const [showLaneMenu, setShowLaneMenu] = useState(false);
+  const [particles, setParticles] = useState<{ x: number; y: number } | null>(null);
+  const [isShaking, setIsShaking] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Fermer le menu si on clique ailleurs
@@ -35,7 +38,27 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
     };
   }, [showLaneMenu]);
 
-  const handleCardClick = () => {
+  const triggerHaptic = () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([10, 30, 20]);
+    }
+  };
+
+  const handleCardClick = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    // Get click position from mouse event, or center for keyboard
+    const clientX = e && 'clientX' in e ? e.clientX : window.innerWidth / 2;
+    const clientY = e && 'clientY' in e ? e.clientY : window.innerHeight / 2;
+
+    // Trigger particles on newly played champions
+    if (!champion.isPlayed) {
+      setParticles({ x: clientX, y: clientY });
+      setTimeout(() => setParticles(null), 800);
+      triggerHaptic();
+    } else {
+      // Trigger shake on uncheck
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 400);
+    }
     onToggle(champion.id);
   };
 
@@ -54,13 +77,15 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
   const hasRoles = assignedRoles.length > 0;
 
   return (
-    <div
-      className={`champion-card ${champion.isPlayed ? 'played' : 'unplayed'}`}
-      onClick={handleCardClick}
-      onKeyDown={(e) => {
+    <>
+      {particles && <ClickParticles x={particles.x} y={particles.y} />}
+      <div
+        className={`champion-card ${champion.isPlayed ? 'played' : 'unplayed'} ${isShaking ? 'shaking' : ''}`}
+        onClick={handleCardClick}
+        onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          handleCardClick();
+          handleCardClick(e);
         }
       }}
       role="button"
@@ -176,5 +201,6 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
         </div>
       </div>
     </div>
+    </>
   );
 };

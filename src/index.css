@@ -237,3 +237,32 @@ button:disabled {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
   }
 }
+
+/* Accessibility: Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .champion-card:hover {
+    transform: none;
+  }
+
+  .particles-container,
+  .particle,
+  .milestone-content::before,
+  .milestone-content::after,
+  .streak-counter {
+    display: none !important;
+  }
+
+  .played-badge svg {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

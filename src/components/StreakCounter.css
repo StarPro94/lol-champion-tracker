@@ -1,0 +1,111 @@
+.streak-counter {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  border-radius: var(--radius-lg);
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+  z-index: 100;
+  animation: streakPulse 0.5s ease, streakSlideIn 0.3s ease;
+  pointer-events: none;
+}
+
+@keyframes streakSlideIn {
+  from {
+    transform: translateY(100px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes streakPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.streak-fires {
+  font-size: 1.25rem;
+  animation: fireDance 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes fireDance {
+  from { transform: translateY(-2px); }
+  to { transform: translateY(2px); }
+}
+
+.streak-count {
+  color: white;
+  font-size: 1rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Intensity levels */
+.streak-mild {
+  background: linear-gradient(135deg, #ff9a56, #ff6b35);
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
+}
+
+.streak-warm {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  box-shadow: 0 4px 25px rgba(255, 107, 53, 0.5);
+}
+
+.streak-hot {
+  background: linear-gradient(135deg, #f7931e, #ffcc00);
+  box-shadow: 0 4px 30px rgba(255, 107, 53, 0.6);
+}
+
+.streak-hot .streak-fires {
+  animation: fireDance 0.3s ease-in-out infinite alternate;
+}
+
+.streak-intense {
+  background: linear-gradient(135deg, #ffcc00, #ff6b35, #f7931e);
+  background-size: 200% 200%;
+  box-shadow: 0 4px 40px rgba(255, 107, 53, 0.7);
+  animation: streakPulse 0.5s ease, streakSlideIn 0.3s ease, gradientShift 2s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.streak-intense .streak-fires {
+  font-size: 1.5rem;
+  animation: fireDance 0.2s ease-in-out infinite alternate;
+}
+
+/* Mobile adjustment */
+@media (max-width: 480px) {
+  .streak-counter {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.625rem 1rem;
+  }
+
+  .streak-count {
+    font-size: 0.875rem;
+  }
+
+  .streak-fires {
+    font-size: 1rem;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .streak-counter,
+  .streak-fires,
+  .streak-intense {
+    animation: none !important;
+  }
+}
