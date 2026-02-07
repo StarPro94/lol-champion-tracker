@@ -6,6 +6,7 @@ import { useStreak } from './hooks/useStreak';
 import { useSound } from './hooks/useSound';
 import { useScreenShake } from './hooks/useScreenShake';
 import { useXP, XPBar, LevelUpNotification } from './components/XPBar';
+import { DancingDwarves, useDancingDwarves } from './components/DancingDwarves';
 import { togglePlayed, toggleLaneRole } from './utils/storage';
 import { getRandomUnplayedChampion } from './utils/filters';
 import { ProgressBar } from './components/ProgressBar';
@@ -43,6 +44,9 @@ function App() {
   // XP System
   const xpSystem = useXP();
 
+  // Dancing Dwarves System
+  const { trigger: dwarfTrigger, isMilestone: dwarfMilestone, triggerDwarves } = useDancingDwarves();
+
   // Satisfying systems
   const { celebration, dismissCelebration } = useMilestone(playedCount, totalCount);
   const { streak, isVisible: streakVisible, incrementStreak, resetStreak } = useStreak();
@@ -55,8 +59,9 @@ function App() {
     if (celebration) {
       playMilestoneSound();
       heavyShake();
+      triggerDwarves(true); // Trigger dancing dwarves for milestones!
     }
-  }, [celebration, playMilestoneSound, heavyShake]);
+  }, [celebration, playMilestoneSound, heavyShake, triggerDwarves]);
 
   // Toggle joué
   const handleToggle = useCallback((championId: string) => {
@@ -71,6 +76,8 @@ function App() {
       incrementStreak();
       // Add XP for playing champion
       xpSystem.addXP(xpSystem.getXpForChampion(playedCount + 1));
+      // Trigger dancing dwarves! 🧔💃
+      triggerDwarves(false);
     } else {
       // Reset streak when unchecking (optional - removes the streak feeling)
       resetStreak();
@@ -437,6 +444,12 @@ function App() {
           onDismiss={xpSystem.dismissLevelUp}
         />
       )}
+
+      {/* 🧔💃 DANCTING DWARVES! 💃🧔 */}
+      <DancingDwarves
+        trigger={dwarfTrigger}
+        isMilestone={dwarfMilestone}
+      />
 
       {/* Focus Mode */}
       {showFocusMode && (
