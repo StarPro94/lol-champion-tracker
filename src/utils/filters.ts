@@ -39,10 +39,11 @@ export function filterChampions(
     result = result.filter((champion) => filters.partypes.includes(champion.partype));
   }
 
-  // Filtre par lane roles custom - multi-select
+  // Filtre par lane roles custom - multi-select (un champion peut avoir plusieurs rôles)
   if (filters.laneRoles.length > 0) {
     result = result.filter((champion) =>
-      filters.laneRoles.includes(champion.laneRole || 'UNKNOWN')
+      // Inclure si au moins un des rôles du champion est dans les filtres
+      champion.laneRoles.some((role) => filters.laneRoles.includes(role))
     );
   }
 
@@ -114,13 +115,14 @@ export function countByTag(
 
 /**
  * Compte les champions par rôle lane
+ * Note: un champion peut avoir plusieurs rôles, donc la somme des totaux > nombre total de champions
  */
 export function countByLaneRole(
   champions: ChampionWithState[],
   laneRole: LaneRole
 ): { total: number; played: number } {
   const withRole = champions.filter(
-    (champion) => (champion.laneRole || 'UNKNOWN') === laneRole
+    (champion) => champion.laneRoles.includes(laneRole)
   );
   return {
     total: withRole.length,
@@ -166,7 +168,7 @@ export function getRandomUnplayedChampion(
 
     if (filters.laneRoles && filters.laneRoles.length > 0) {
       unplayed = unplayed.filter((champion) =>
-        filters.laneRoles!.includes(champion.laneRole || 'UNKNOWN')
+        champion.laneRoles.some((role) => filters.laneRoles!.includes(role))
       );
     }
   }

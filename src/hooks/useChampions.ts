@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Champion, ChampionWithState } from '../types/champion';
 import { fetchChampions, getChampionImageUrl, getCurrentVersion } from '../utils/ddragon';
 import { getAllData } from '../utils/storage';
+import { getDefaultChampionRoles } from '../data/championRoles';
 
 interface UseChampionsResult {
   champions: ChampionWithState[];
@@ -24,13 +25,21 @@ export function useChampions(): UseChampionsResult {
       const storedData = getAllData();
 
       // Fusionner les champions avec leur état stocké
-      const championsWithState: ChampionWithState[] = data.map((champion) => ({
-        ...champion,
-        isPlayed: storedData.played.includes(champion.id),
-        laneRole: storedData.laneRoles[champion.id],
-        playedAt: storedData.playedAt[champion.id],
-        imageUrl: getChampionImageUrl(champion, getCurrentVersion() || undefined),
-      }));
+      // Si aucun rôle n'est assigné, utiliser les rôles par défaut
+      const championsWithState: ChampionWithState[] = data.map((champion) => {
+        const storedRoles = storedData.laneRoles[champion.id];
+        const roles = storedRoles && storedRoles.length > 0
+          ? storedRoles
+          : getDefaultChampionRoles(champion.id);
+
+        return {
+          ...champion,
+          isPlayed: storedData.played.includes(champion.id),
+          laneRoles: roles,
+          playedAt: storedData.playedAt[champion.id],
+          imageUrl: getChampionImageUrl(champion, getCurrentVersion() || undefined),
+        };
+      });
 
       setChampions(championsWithState);
     } catch (err) {

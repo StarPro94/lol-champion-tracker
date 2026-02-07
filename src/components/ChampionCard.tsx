@@ -7,13 +7,13 @@ import './ChampionCard.css';
 interface ChampionCardProps {
   champion: ChampionWithState;
   onToggle: (championId: string) => void;
-  onLaneRoleChange?: (championId: string, role: LaneRole | undefined) => void;
+  onLaneRoleToggle?: (championId: string, role: LaneRole) => void;
 }
 
 export const ChampionCard: React.FC<ChampionCardProps> = ({
   champion,
   onToggle,
-  onLaneRoleChange,
+  onLaneRoleToggle,
 }) => {
   const [showLaneMenu, setShowLaneMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -44,12 +44,14 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
     setShowLaneMenu(!showLaneMenu);
   };
 
-  const handleLaneSelect = (role: LaneRole) => {
-    onLaneRoleChange?.(champion.id, role);
-    setShowLaneMenu(false);
+  const handleLaneToggle = (e: React.MouseEvent, role: LaneRole) => {
+    e.stopPropagation();
+    onLaneRoleToggle?.(champion.id, role);
   };
 
-  const currentLaneRole = champion.laneRole || 'UNKNOWN';
+  // Rôles assignés au champion
+  const assignedRoles = champion.laneRoles || [];
+  const hasRoles = assignedRoles.length > 0;
 
   return (
     <div
@@ -64,7 +66,7 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
       role="button"
       tabIndex={0}
       aria-pressed={champion.isPlayed}
-      aria-label={`${champion.name}, ${champion.isPlayed ? 'joué' : 'non joué'}, rôle: ${currentLaneRole}`}
+      aria-label={`${champion.name}, ${champion.isPlayed ? 'joué' : 'non joué'}${hasRoles ? `, rôles: ${assignedRoles.join(', ')}` : ''}`}
     >
       <div className="champion-image-container">
         <img
@@ -96,28 +98,49 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
       <div className="champion-info">
         <div className="champion-header">
           <h3 className="champion-name">{champion.name}</h3>
-          {onLaneRoleChange && (
+          {onLaneRoleToggle && (
             <div className="lane-selector" ref={menuRef}>
               <button
                 type="button"
-                className={`lane-badge ${currentLaneRole.toLowerCase()}`}
+                className={`lane-badge ${hasRoles ? '' : 'empty'} ${assignedRoles.length > 0 ? assignedRoles[0].toLowerCase() : ''}`}
                 onClick={handleLaneClick}
-                aria-label={`Assigner rôle lane, actuel: ${currentLaneRole}`}
+                aria-label={`Assigner rôles lane${hasRoles ? `, actuels: ${assignedRoles.join(', ')}` : ''}`}
               >
-                {currentLaneRole}
+                {hasRoles ? (
+                  <span className="role-labels">
+                    {assignedRoles.slice(0, 2).map((r) => (
+                      <span key={r} className={`role-dot ${r.toLowerCase()}`}>{r}</span>
+                    ))}
+                    {assignedRoles.length > 2 && <span className="role-more">+{assignedRoles.length - 2}</span>}
+                  </span>
+                ) : (
+                  <span className="role-placeholder">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M6 2V10M2 6H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </span>
+                )}
               </button>
               {showLaneMenu && (
                 <div className="lane-menu">
-                  {LANE_ROLES.map((role) => (
-                    <button
-                      key={role}
-                      type="button"
-                      className={`lane-option ${role === currentLaneRole ? 'active' : ''}`}
-                      onClick={() => handleLaneSelect(role)}
-                    >
-                      {role === 'UNKNOWN' ? 'Non défini' : role}
-                    </button>
-                  ))}
+                  <div className="lane-menu-title">Assigner rôles</div>
+                  {LANE_ROLES.map((role) => {
+                    const isChecked = assignedRoles.includes(role);
+                    return (
+                      <label
+                        key={role}
+                        className={`lane-option ${isChecked ? 'checked' : ''} ${role.toLowerCase()}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => {}}
+                          onClick={(e) => handleLaneToggle(e as any, role)}
+                        />
+                        <span className="lane-option-label">{role}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               )}
             </div>

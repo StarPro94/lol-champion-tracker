@@ -59,7 +59,7 @@ export function loadStoredData(): StoredData {
 /**
  * Sauvegarde les données dans localStorage
  */
-export function saveStoredData(data: StoredData): boolean {
+function saveStoredData(data: StoredData): boolean {
   if (!isLocalStorageAvailable()) {
     console.warn('localStorage is not available');
     return false;
@@ -77,13 +77,37 @@ export function saveStoredData(data: StoredData): boolean {
 /**
  * Migre les données si le schéma a changé
  */
-function migrateData(oldData: StoredData): StoredData {
-  // Pour l'instant, pas de migration nécessaire
-  // À l'avenir, on pourra gérer les différentes versions ici
-  return {
-    ...oldData,
+function migrateData(oldData: any): StoredData {
+  const migrated: StoredData = {
+    played: [],
+    laneRoles: {},
+    playedAt: {},
     schemaVersion: CURRENT_SCHEMA_VERSION,
   };
+
+  // Migrer les champions joués
+  if (Array.isArray(oldData.played)) {
+    migrated.played = oldData.played;
+  }
+
+  // Migrer les dates
+  if (typeof oldData.playedAt === 'object') {
+    migrated.playedAt = oldData.playedAt;
+  }
+
+  // Migrer les lane roles - version 1 -> 2 (single role -> array of roles)
+  if (typeof oldData.laneRoles === 'object') {
+    Object.entries(oldData.laneRoles).forEach(([championId, role]: [string, any]) => {
+      // Si c'était un seul rôle, le mettre dans un tableau
+      if (typeof role === 'string') {
+        migrated.laneRoles[championId] = [role as LaneRole];
+      } else if (Array.isArray(role)) {
+        migrated.laneRoles[championId] = role as LaneRole[];
+      }
+    });
+  }
+
+  return migrated;
 }
 
 /**
@@ -133,26 +157,81 @@ export function setPlayed(championId: string, played: boolean): boolean {
 }
 
 /**
- * Récupère le rôle lane assigné à un champion
+ * Récupère les rôles lanes assignés à un champion
  */
-export function getLaneRole(championId: string): LaneRole | undefined {
+export function getLaneRoles(championId: string): LaneRole[] {
   const data = loadStoredData();
-  return data.laneRoles[championId];
+  return data.laneRoles[championId] || [];
 }
 
 /**
- * Assigne un rôle lane à un champion
+ * Assigne un rôle lane à un champion (ajoute au tableau existant)
  */
-export function setLaneRole(championId: string, role: LaneRole | undefined): boolean {
+export function addLaneRole(championId: string, role: LaneRole): boolean {
   const data = loadStoredData();
 
-  if (role) {
-    data.laneRoles[championId] = role;
+  if (!data.laneRoles[championId]) {
+    data.laneRoles[championId] = [];
+  }
+
+  if (!data.laneRoles[championId].includes(role)) {
+    data.laneRoles[championId].push(role);
+  }
+
+  return saveStoredData(data);
+}
+
+/**
+ * Retire un rôle lane d'un champion
+ */
+export function removeLaneRole(championId: string, role: LaneRole): boolean {
+  const data = loadStoredData();
+
+  if (data.laneRoles[championId]) {
+    data.laneRoles[championId] = data.laneRoles[championId].filter((r) => r !== role);
+
+    // Supprimer la clé si plus aucun rôle
+    if (data.laneRoles[championId].length === 0) {
+      delete data.laneRoles[championId];
+    }
+  }
+
+  return saveStoredData(data);
+}
+
+/**
+ * Toggle un rôle lane (ajoute si absent, retire si présent)
+ */
+export function toggleLaneRole(championId: string, role: LaneRole): boolean {
+  const roles = getLaneRoles(championId);
+  if (roles.includes(role)) {
+    return removeLaneRole(championId, role);
+  } else {
+    return addLaneRole(championId, role);
+  }
+}
+
+/**
+ * Assigne tous les rôles lanes d'un champion (remplace)
+ */
+export function setLaneRoles(championId: string, roles: LaneRole[]): boolean {
+  const data = loadStoredData();
+
+  if (roles.length > 0) {
+    data.laneRoles[championId] = roles;
   } else {
     delete data.laneRoles[championId];
   }
 
   return saveStoredData(data);
+}
+
+/**
+ * Vérifie si un champion a un rôle spécifique
+ */
+export function hasLaneRole(championId: string, role: LaneRole): boolean {
+  const roles = getLaneRoles(championId);
+  return roles.includes(role);
 }
 
 /**
@@ -200,8 +279,16 @@ export function importData(json: string, merge: boolean = true): boolean {
       const playedSet = new Set([...data.played, ...importedData.played]);
       data.played = Array.from(playedSet);
 
-      // Fusionner les lane roles (importé écrase local si conflit)
-      data.laneRoles = { ...data.laneRoles, ...importedData.laneRoles };
+      // Fusionner les lane roles (merge des tableaux)
+      Object.entries(importedData.laneRoles).forEach(([championId, roles]: [string, any]) => {
+        if (Array.isArray(roles)) {
+          const existingRoles = data.laneRoles[championId] || [];
+          const mergedRoles = Array.from(new Set([...existingRoles, ...roles]));
+          if (mergedRoles.length > 0) {
+            data.laneRoles[championId] = mergedRoles;
+          }
+        }
+      });
 
       // Fusionner les playedAt (garder la date la plus récente)
       Object.entries(importedData.playedAt).forEach(([championId, dateStr]) => {
@@ -211,11 +298,18 @@ export function importData(json: string, merge: boolean = true): boolean {
         }
       });
     } else {
-      // Mode écrasement
+      // Mode écrasement avec migration si nécessaire
       data = {
         ...importedData,
         schemaVersion: CURRENT_SCHEMA_VERSION,
       };
+
+      // S'assurer que les laneRoles sont bien des tableaux
+      Object.entries(data.laneRoles).forEach(([championId, roles]: [string, any]) => {
+        if (!Array.isArray(roles)) {
+          data.laneRoles[championId] = [roles];
+        }
+      });
     }
 
     return saveStoredData(data);

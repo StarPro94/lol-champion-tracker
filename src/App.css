@@ -268,11 +268,54 @@
 }
 
 .modal-title {
-  margin: 0 0 1rem;
+  margin: 0 0 0.5rem;
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-text-primary);
 }
+
+.modal-subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.lane-role-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.lane-role-option {
+  padding: 0.75rem 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lane-role-option:hover {
+  border-color: var(--color-accent-blue);
+}
+
+.lane-role-option.active {
+  color: var(--color-bg-primary);
+  border-color: var(--color-accent-blue);
+  background: var(--color-accent-blue);
+}
+
+.lane-role-option.top.active { background: #ff6b6b; border-color: #ff6b6b; }
+.lane-role-option.jungle.active { background: #51cf66; border-color: #51cf66; }
+.lane-role-option.mid.active { background: #339af0; border-color: #339af0; }
+.lane-role-option.bot.active { background: #ffd43b; border-color: #ffd43b; color: #091428; }
+.lane-role-option.support.active { background: #cc5de8; border-color: #cc5de8; }
+.lane-role-option.flex.active { background: #868e96; border-color: #868e96; }
 
 .random-champion-card {
   display: flex;
@@ -326,6 +369,28 @@
   font-size: 0.75rem;
   color: var(--color-accent-gold);
 }
+
+.random-champion-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.random-champion-roles .role-badge {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: 4px;
+}
+
+.random-champion-roles .role-badge.top { background: #ff6b6b; color: #fff; }
+.random-champion-roles .role-badge.jungle { background: #51cf66; color: #fff; }
+.random-champion-roles .role-badge.mid { background: #339af0; color: #fff; }
+.random-champion-roles .role-badge.bot { background: #ffd43b; color: #091428; }
+.random-champion-roles .role-badge.support { background: #cc5de8; color: #fff; }
+.random-champion-roles .role-badge.flex { background: #868e96; color: #fff; }
 
 .modal-actions {
   display: flex;

@@ -37,22 +37,22 @@ export interface ChampionData {
 
 export type LaneRole = 'TOP' | 'JUNGLE' | 'MID' | 'BOT' | 'SUPPORT' | 'FLEX' | 'UNKNOWN';
 
-export const LANE_ROLES: LaneRole[] = ['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT', 'FLEX', 'UNKNOWN'];
+export const LANE_ROLES: LaneRole[] = ['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT', 'FLEX'];
 
 // localStorage Types
 export const STORAGE_KEY = 'lol-champion-tracker:v1';
-export const CURRENT_SCHEMA_VERSION = 1;
+export const CURRENT_SCHEMA_VERSION = 2;
 
 export interface StoredData {
   played: string[]; // champion.id
-  laneRoles: Record<string, LaneRole>; // champion.id -> LaneRole
+  laneRoles: Record<string, LaneRole[]>; // champion.id -> LaneRole[] (plusieurs rôles possibles)
   playedAt: Record<string, string>; // champion.id -> ISO date string
   schemaVersion: number;
 }
 
 export interface ChampionWithState extends Champion {
   isPlayed: boolean;
-  laneRole?: LaneRole;
+  laneRoles: LaneRole[]; // Tableau de rôles (peut être vide)
   playedAt?: string;
   imageUrl: string;
 }

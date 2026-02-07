@@ -108,20 +108,28 @@
   line-height: 1.2;
 }
 
+/* Lane Selector */
 .lane-selector {
   position: relative;
   flex-shrink: 0;
 }
 
 .lane-badge {
-  padding: 0.125rem 0.5rem;
-  font-size: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.25rem;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.5625rem;
   font-weight: 700;
   text-transform: uppercase;
   border-radius: 4px;
   white-space: nowrap;
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
+  background: var(--color-accent-blue);
+  color: var(--color-bg-primary);
 }
 
 .lane-badge:hover {
@@ -129,55 +137,108 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.lane-badge.top {
+.lane-badge.empty {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+}
+
+.lane-badge.top .role-dot {
   background: #ff6b6b;
 }
 
-.lane-badge.jungle {
+.lane-badge.jungle .role-dot {
   background: #51cf66;
 }
 
-.lane-badge.mid {
+.lane-badge.mid .role-dot {
   background: #339af0;
 }
 
-.lane-badge.bot {
+.lane-badge.bot .role-dot {
   background: #ffd43b;
   color: #091428;
 }
 
-.lane-badge.support {
+.lane-badge.support .role-dot {
   background: #cc5de8;
 }
 
-.lane-badge.flex {
+.lane-badge.flex .role-dot {
   background: #868e96;
 }
 
-.lane-badge.unknown {
-  background: var(--color-bg-tertiary);
+/* Role labels inside badge */
+.role-labels {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.role-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 2px;
+  font-size: 0.5rem;
+  font-weight: 700;
+  border-radius: 2px;
+  background: var(--color-accent-blue);
+  color: var(--color-bg-primary);
+}
+
+.role-dot.top { background: #ff6b6b; }
+.role-dot.jungle { background: #51cf66; }
+.role-dot.mid { background: #339af0; }
+.role-dot.bot { background: #ffd43b; color: #091428; }
+.role-dot.support { background: #cc5de8; }
+.role-dot.flex { background: #868e96; }
+
+.role-more {
+  font-size: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+.role-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--color-text-muted);
 }
 
+/* Lane Menu */
 .lane-menu {
   position: absolute;
   top: calc(100% + 4px);
   right: 0;
   z-index: 100;
-  min-width: 120px;
-  padding: 0.25rem;
+  min-width: 140px;
+  padding: 0.5rem;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
+.lane-menu-title {
+  padding: 0 0.5rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
 .lane-option {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem;
   font-size: 0.75rem;
-  text-align: left;
   color: var(--color-text-primary);
   background: transparent;
   border: none;
@@ -190,10 +251,39 @@
   background: var(--color-bg-secondary);
 }
 
-.lane-option.active {
-  background: var(--color-accent-blue);
-  color: var(--color-bg-primary);
+.lane-option input[type="checkbox"] {
+  display: none;
 }
+
+.lane-option.checked {
+  background: var(--color-bg-tertiary);
+}
+
+.lane-option.checked .lane-option-label::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.lane-option-label {
+  position: relative;
+  padding-left: 0.75rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lane-option.top { color: #ff6b6b; }
+.lane-option.jungle { color: #51cf66; }
+.lane-option.mid { color: #339af0; }
+.lane-option.bot { color: #ffd43b; }
+.lane-option.support { color: #cc5de8; }
+.lane-option.flex { color: #868e96; }
 
 .champion-title {
   margin: 0 0 0.75rem;
@@ -257,7 +347,14 @@
   }
 
   .lane-badge {
-    font-size: 0.5625rem;
-    padding: 0.1rem 0.4rem;
+    font-size: 0.5rem;
+    min-width: 1.25rem;
+    height: 1rem;
+  }
+
+  .role-dot {
+    min-width: 12px;
+    height: 12px;
+    font-size: 0.4375rem;
   }
 }

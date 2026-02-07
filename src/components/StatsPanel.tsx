@@ -29,7 +29,7 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ champions }) => {
     });
 
     // Regrouper par lane role
-    const allLaneRoles = new Set(champions.map((c) => c.laneRole || 'UNKNOWN'));
+    const allLaneRoles = new Set(champions.flatMap((c) => c.laneRoles));
     const byLaneRole: Record<string, { total: number; played: number }> = {};
     allLaneRoles.forEach((role) => {
       byLaneRole[role] = countByLaneRole(champions, role);

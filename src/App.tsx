@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useChampions } from './hooks/useChampions';
 import { useFilters } from './hooks/useFilters';
-import { togglePlayed, setLaneRole } from './utils/storage';
+import { togglePlayed, toggleLaneRole } from './utils/storage';
 import { getRandomUnplayedChampion } from './utils/filters';
 import { ProgressBar } from './components/ProgressBar';
 import { SearchBar } from './components/SearchBar';
@@ -19,6 +19,7 @@ function App() {
 
   const [randomChampion, setRandomChampion] = useState<typeof champions[number] | null>(null);
   const [showRandomChampion, setShowRandomChampion] = useState(false);
+  const [randomLaneRole, setRandomLaneRole] = useState<LaneRole | 'all'>('all');
 
   // Calculer les stats globales
   const playedCount = champions.filter((c) => c.isPlayed).length;
@@ -30,27 +31,28 @@ function App() {
     refetch();
   }, [refetch]);
 
-  // Assigner rôle lane
-  const handleLaneRoleChange = useCallback((championId: string, role: LaneRole | undefined) => {
-    setLaneRole(championId, role);
+  // Toggle rôle lane
+  const handleLaneRoleToggle = useCallback((championId: string, role: LaneRole) => {
+    toggleLaneRole(championId, role);
     refetch();
   }, [refetch]);
 
   // Random champion
   const handleRandomChampion = useCallback(() => {
+    const laneRolesFilter = randomLaneRole === 'all' ? undefined : [randomLaneRole];
     const random = getRandomUnplayedChampion(champions, {
       tags: filters.tags.length > 0 ? filters.tags : undefined,
       partypes: filters.partypes.length > 0 ? filters.partypes : undefined,
-      laneRoles: filters.laneRoles.length > 0 ? filters.laneRoles : undefined,
+      laneRoles: laneRolesFilter,
     });
 
     if (random) {
       setRandomChampion(random);
       setShowRandomChampion(true);
     } else {
-      alert('Aucun champion non joué ne correspond aux filtres actuels !');
+      alert('Aucun champion non joué ne correspond aux critères !');
     }
-  }, [champions, filters]);
+  }, [champions, filters, randomLaneRole]);
 
   // Fermer la modal random
   const handleCloseRandom = () => {
@@ -186,7 +188,7 @@ function App() {
             champions={filteredChampions}
             isLoading={isLoading}
             onToggle={handleToggle}
-            onLaneRoleChange={handleLaneRoleChange}
+            onLaneRoleToggle={handleLaneRoleToggle}
             emptyMessage={
               filters.search || filters.status !== 'all' || filters.tags.length > 0
                 ? 'Aucun champion ne correspond à vos critères'
@@ -221,7 +223,7 @@ function App() {
       </footer>
 
       {/* Modal Random Champion */}
-      {showRandomChampion && randomChampion && (
+      {showRandomChampion && (
         <div className="modal-overlay" onClick={handleCloseRandom}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button
@@ -240,42 +242,107 @@ function App() {
               </svg>
             </button>
 
-            <h2 className="modal-title">Champion suggéré</h2>
+            {!randomChampion ? (
+              <>
+                <h2 className="modal-title">Champion aléatoire</h2>
+                <p className="modal-subtitle">Choisissez un rôle (optionnel)</p>
 
-            <div className="random-champion-card">
-              <img
-                src={randomChampion.imageUrl}
-                alt={randomChampion.name}
-                className="random-champion-image"
-              />
-              <div className="random-champion-info">
-                <h3>{randomChampion.name}</h3>
-                <p>{randomChampion.title}</p>
-                <div className="random-champion-tags">
-                  {randomChampion.tags.map((tag) => (
-                    <span key={tag} className="tag">
-                      {tag}
-                    </span>
+                <div className="lane-role-selector">
+                  <button
+                    type="button"
+                    className={`lane-role-option ${randomLaneRole === 'all' ? 'active' : ''}`}
+                    onClick={() => setRandomLaneRole('all')}
+                  >
+                    Tous les rôles
+                  </button>
+                  {['TOP', 'JUNGLE', 'MID', 'BOT', 'SUPPORT', 'FLEX'].map((role) => (
+                    <button
+                      key={role}
+                      type="button"
+                      className={`lane-role-option ${randomLaneRole === role ? 'active' : ''} ${role.toLowerCase()}`}
+                      onClick={() => setRandomLaneRole(role as LaneRole)}
+                    >
+                      {role}
+                    </button>
                   ))}
                 </div>
-                <div className="random-champion-difficulty">
-                  Difficulté: {randomChampion.info.difficulty}/10
-                </div>
-              </div>
-            </div>
 
-            <div className="modal-actions">
-              <button type="button" className="btn-secondary" onClick={handleCloseRandom}>
-                Annuler
-              </button>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={handlePlayRandomChampion}
-              >
-                Marquer comme joué
-              </button>
-            </div>
+                <div className="modal-actions">
+                  <button type="button" className="btn-secondary" onClick={handleCloseRandom}>
+                    Annuler
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={() => {
+                      const laneRolesFilter = randomLaneRole === 'all' ? undefined : [randomLaneRole as LaneRole];
+                      const random = getRandomUnplayedChampion(champions, {
+                        tags: filters.tags.length > 0 ? filters.tags : undefined,
+                        partypes: filters.partypes.length > 0 ? filters.partypes : undefined,
+                        laneRoles: laneRolesFilter,
+                      });
+                      if (random) {
+                        setRandomChampion(random);
+                      } else {
+                        alert('Aucun champion non joué ne correspond aux critères !');
+                      }
+                    }}
+                  >
+                    Tirer au sort
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="modal-title">Champion suggéré</h2>
+
+                <div className="random-champion-card">
+                  <img
+                    src={randomChampion.imageUrl}
+                    alt={randomChampion.name}
+                    className="random-champion-image"
+                  />
+                  <div className="random-champion-info">
+                    <h3>{randomChampion.name}</h3>
+                    <p>{randomChampion.title}</p>
+                    <div className="random-champion-tags">
+                      {randomChampion.tags.map((tag) => (
+                        <span key={tag} className="tag">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    {randomChampion.laneRoles.length > 0 && (
+                      <div className="random-champion-roles">
+                        {randomChampion.laneRoles.map((role) => (
+                          <span key={role} className={`role-badge ${role.toLowerCase()}`}>
+                            {role}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="random-champion-difficulty">
+                      Difficulté: {randomChampion.info.difficulty}/10
+                    </div>
+                  </div>
+                </div>
+
+                <div className="modal-actions">
+                  <button type="button" className="btn-secondary" onClick={() => {
+                    setRandomChampion(null);
+                  }}>
+                    Un autre
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={handlePlayRandomChampion}
+                  >
+                    Marquer comme joué
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
