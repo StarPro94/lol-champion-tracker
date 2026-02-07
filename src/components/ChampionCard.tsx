@@ -23,7 +23,45 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
   const [particles, setParticles] = useState<{ x: number; y: number } | null>(null);
   const [shockwave, setShockwave] = useState<{ x: number; y: number } | null>(null);
   const [isShaking, setIsShaking] = useState(false);
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0, scale: 1 });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // 3D Tilt effect
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (showLaneMenu) return; // Disable tilt when menu is open
+
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      // Calculate rotation based on mouse position (max 15 degrees)
+      const rotateX = ((y - centerY) / centerY) * -15;
+      const rotateY = ((x - centerX) / centerX) * 15;
+
+      setTilt({ rotateX, rotateY, scale: 1.05 });
+      setMousePosition({ x: (x / rect.width) * 100, y: (y / rect.height) * 100 });
+    };
+
+    const handleMouseLeave = () => {
+      setTilt({ rotateX: 0, rotateY: 0, scale: 1 });
+    };
+
+    card.addEventListener('mousemove', handleMouseMove);
+    card.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      card.removeEventListener('mousemove', handleMouseMove);
+      card.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [showLaneMenu]);
 
   // Fermer le menu si on clique ailleurs
   useEffect(() => {
@@ -84,12 +122,24 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
   const assignedRoles = champion.laneRoles || [];
   const hasRoles = assignedRoles.length > 0;
 
+  const tiltStyle = {
+    transform: `perspective(1000px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(${tilt.scale})`,
+    transition: showLaneMenu ? 'transform 0.3s ease' : 'transform 0.1s ease-out',
+  };
+
+  const parallaxStyle = {
+    transform: `translate(${tilt.rotateY * -1.5}px, ${tilt.rotateX * -1.5}px)`,
+    transition: showLaneMenu ? 'transform 0.3s ease' : 'transform 0.1s ease-out',
+  };
+
   return (
     <>
       {particles && <ClickParticles x={particles.x} y={particles.y} />}
       {shockwave && <Shockwave x={shockwave.x} y={shockwave.y} />}
       <div
+        ref={cardRef}
         className={`champion-card ${champion.isPlayed ? 'played' : 'unplayed'} ${isShaking ? 'shaking' : ''}`}
+        style={tiltStyle}
         onClick={handleCardClick}
         onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -102,7 +152,11 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
       aria-pressed={champion.isPlayed}
       aria-label={`${champion.name}, ${champion.isPlayed ? 'joué' : 'non joué'}${hasRoles ? `, rôles: ${assignedRoles.join(', ')}` : ''}`}
     >
-      <div className="champion-image-container">
+      <div className="champion-image-container" style={parallaxStyle}>
+        <div className="champion-image-glow" style={{
+          background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(200,155,60,0.3) 0%, transparent 50%)`,
+          opacity: tilt.scale > 1 ? 1 : 0,
+        }} />
         <img
           src={champion.imageUrl}
           alt={champion.name}

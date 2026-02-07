@@ -1,0 +1,375 @@
+.zenith-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(9, 20, 40, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: zenithFadeIn 1s ease;
+}
+
+@keyframes zenithFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Epic Background */
+.zenith-background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.zenith-stars {
+  position: absolute;
+  inset: 0;
+}
+
+.zenith-star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #fff;
+  border-radius: 50%;
+  animation: starTwinkle 2s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* Aurora Effect */
+.zenith-aurora {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    rgba(0, 212, 255, 0.1) 30deg,
+    transparent 60deg,
+    rgba(168, 85, 247, 0.1) 120deg,
+    transparent 150deg,
+    rgba(236, 72, 153, 0.1) 210deg,
+    transparent 240deg
+  );
+  animation: auroraRotate 30s linear infinite;
+}
+
+@keyframes auroraRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Main Content */
+.zenith-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  animation: zenithContentPop 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+}
+
+@keyframes zenithContentPop {
+  from {
+    transform: scale(0.5) translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Trophy */
+.zenith-trophy {
+  font-size: 120px;
+  line-height: 1;
+  margin-bottom: 1rem;
+  animation: trophyBounce 1s ease 0.3s both, trophyGlow 2s ease-in-out infinite 1.3s;
+}
+
+@keyframes trophyBounce {
+  0% {
+    transform: scale(0) rotate(-30deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes trophyGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 60px rgba(255, 215, 0, 1)) drop-shadow(0 0 100px rgba(255, 215, 0, 0.6));
+  }
+}
+
+/* Title */
+.zenith-title {
+  font-size: 64px;
+  font-weight: 900;
+  margin: 0 0 0.5rem;
+  background: linear-gradient(135deg, #ffd700 0%, #ff6b00 50%, #ffcc00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleShimmer 2s ease-in-out infinite 1s;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+}
+
+@keyframes titleShimmer {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+}
+
+/* Subtitle */
+.zenith-subtitle {
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 2rem;
+  animation: subtitleFadeIn 1s ease 0.8s both;
+}
+
+@keyframes subtitleFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stats Grid */
+.zenith-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.zenith-stat {
+  animation: statPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.zenith-stat:nth-child(1) { animation-delay: 1s; }
+.zenith-stat:nth-child(2) { animation-delay: 1.2s; }
+.zenith-stat:nth-child(3) { animation-delay: 1.4s; }
+
+@keyframes statPopIn {
+  from {
+    transform: scale(0) translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.zenith-stat-value {
+  font-size: 48px;
+  font-weight: 900;
+  color: #00D4FF;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.zenith-stat-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Achievements Showcase */
+.zenith-achievements {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  animation: achievementsSlideIn 1s ease 1.6s both;
+}
+
+@keyframes achievementsSlideIn {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.zenith-achievement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.zenith-achievement-icon {
+  font-size: 32px;
+}
+
+.zenith-achievement-name {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+.zenith-achievement.legendary {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.4);
+  animation: legendaryPulse 2s ease-in-out infinite;
+}
+
+@keyframes legendaryPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.6); }
+}
+
+/* Actions */
+.zenith-actions {
+  display: flex;
+  gap: 1rem;
+  animation: actionsFadeIn 1s ease 2s both;
+}
+
+@keyframes actionsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.zenith-button {
+  padding: 1rem 2rem;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.zenith-button-primary {
+  background: linear-gradient(135deg, #00D4FF 0%, #A855F7 100%);
+  color: #091428;
+}
+
+.zenith-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+}
+
+.zenith-button-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.zenith-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Credits */
+.zenith-credits {
+  position: absolute;
+  bottom: 2rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.4);
+  animation: creditsFadeIn 1s ease 2.5s both;
+}
+
+@keyframes creditsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Fireworks Canvas */
+.zenith-fireworks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Closing Animation */
+.zenith-overlay.closing {
+  animation: zenithFadeOut 1s ease forwards;
+}
+
+@keyframes zenithFadeOut {
+  to {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .zenith-title {
+    font-size: 36px;
+    letter-spacing: 2px;
+  }
+
+  .zenith-subtitle {
+    font-size: 18px;
+  }
+
+  .zenith-stats {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .zenith-trophy {
+    font-size: 80px;
+  }
+
+  .zenith-actions {
+    flex-direction: column;
+    width: 100%;
+    padding: 0 2rem;
+  }
+
+  .zenith-button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zenith-overlay,
+  .zenith-content,
+  .zenith-trophy,
+  .zenith-title,
+  .zenith-aurora,
+  .zenith-star,
+  .zenith-stat,
+  .zenith-achievements,
+  .zenith-actions,
+  .zenith-credits {
+    animation: none;
+  }
+}

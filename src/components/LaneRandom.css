@@ -1,0 +1,464 @@
+.lane-random-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 20, 40, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lane-random-content {
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  background: linear-gradient(135deg, #091428 0%, #1a2d4a 100%);
+  border: 2px solid var(--color-hextech-cyan, #00D4FF);
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 0 60px rgba(0, 212, 255, 0.3);
+  animation: contentPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes contentPopIn {
+  from {
+    transform: scale(0.8) translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.lane-random-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lane-random-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+.lane-random-title {
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+  margin: 0 0 8px;
+  background: linear-gradient(135deg, #00D4FF 0%, #A855F7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.lane-random-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin: 0 0 32px;
+}
+
+/* Stage 1: Role Selection */
+.role-selection-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.role-selection-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.role-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.role-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.role-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-hextech-cyan, #00D4FF);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
+}
+
+.role-button.random:hover {
+  border-color: #A855F7;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
+}
+
+.role-button-icon {
+  font-size: 32px;
+}
+
+.role-button-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.role-button-top { --role-color: #ff6b6b; }
+.role-button-jungle { --role-color: #51cf66; }
+.role-button-mid { --role-color: #339af0; }
+.role-button-bot { --role-color: #ffd43b; }
+.role-button-support { --role-color: #cc5de8; }
+.role-button-random { --role-color: #A855F7; }
+
+.role-button:hover .role-button-icon {
+  animation: roleIconBounce 0.5s ease;
+}
+
+@keyframes roleIconBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Stage 2: Roulette */
+.roulette-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.roulette-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+}
+
+.roulette-wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    #ff6b6b 0deg 60deg,
+    #51cf66 60deg 120deg,
+    #339af0 120deg 180deg,
+    #ffd43b 180deg 240deg,
+    #cc5de8 240deg 300deg,
+    #A855F7 300deg 360deg
+  );
+  border: 8px solid #091428;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s linear;
+}
+
+.roulette-wheel.spinning {
+  animation: rouletteSpin 3s cubic-bezier(0.17, 0.67, 0.12, 0.99) forwards;
+}
+
+@keyframes rouletteSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(var(--spin-degrees, 1800deg)); }
+}
+
+.roulette-pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 40px solid #ffd700;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  z-index: 10;
+}
+
+.roulette-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, #ffd700 0%, #ff9500 100%);
+  border-radius: 50%;
+  border: 6px solid #091428;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  z-index: 5;
+}
+
+.roulette-champion-display {
+  text-align: center;
+}
+
+.roulette-champion-name {
+  font-size: 36px;
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 8px;
+  animation: championNamePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes championNamePop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.roulette-champion-title {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 16px;
+}
+
+.roulette-champion-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 16px;
+  border: 4px solid var(--color-hextech-cyan, #00D4FF);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+  animation: championImageReveal 0.5s ease;
+}
+
+@keyframes championImageReveal {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+.roulette-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.roulette-button {
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.roulette-button-primary {
+  background: linear-gradient(135deg, #00D4FF 0%, #A855F7 100%);
+  color: #091428;
+}
+
+.roulette-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.4);
+}
+
+.roulette-button-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.roulette-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.roulette-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Stage 3: Result */
+.result-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  animation: resultStageIn 0.5s ease;
+}
+
+@keyframes resultStageIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.result-champion-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid var(--color-hextech-cyan, #00D4FF);
+  border-radius: 20px;
+  animation: resultCardGlow 2s ease-in-out infinite;
+}
+
+@keyframes resultCardGlow {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 50px rgba(0, 212, 255, 0.5);
+  }
+}
+
+.result-champion-image {
+  width: 160px;
+  height: 160px;
+  border-radius: 20px;
+  border: 4px solid #ffd700;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+}
+
+.result-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.result-button {
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.result-button-play {
+  background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+  color: #091428;
+}
+
+.result-button-play:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(81, 207, 102, 0.4);
+}
+
+.result-button-reroll {
+  background: linear-gradient(135deg, #A855F7 0%, #ec4899 100%);
+  color: #fff;
+}
+
+.result-button-reroll:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+}
+
+/* Weighted champions display */
+.weighted-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  margin-top: 16px;
+}
+
+@media (max-width: 480px) {
+  .lane-random-content {
+    padding: 24px;
+  }
+
+  .lane-random-title {
+    font-size: 24px;
+  }
+
+  .roulette-container {
+    width: 200px;
+    height: 200px;
+  }
+
+  .roulette-champion-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .result-champion-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .role-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lane-random-content,
+  .lane-random-overlay,
+  .roulette-wheel,
+  .roulette-champion-image,
+  .result-stage {
+    animation: none;
+  }
+
+  .roulette-wheel.spinning {
+    transition: transform 1s ease-out;
+  }
+}

@@ -1,0 +1,407 @@
+.advanced-stats {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.advanced-stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.advanced-stats-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.advanced-stats-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--color-bg-primary);
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+}
+
+.stats-tab {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.stats-tab:hover {
+  color: var(--color-text-primary);
+}
+
+.stats-tab.active {
+  background: var(--color-accent-blue);
+  color: var(--color-bg-primary);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+}
+
+.stat-card-value {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-card-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-card-change {
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.stat-card-change.positive {
+  color: #51cf66;
+}
+
+.stat-card-change.negative {
+  color: #ff6b6b;
+}
+
+/* Progress Chart */
+.progress-chart {
+  height: 200px;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.progress-chart-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+}
+
+.progress-chart-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.progress-chart-line {
+  fill: none;
+  stroke: var(--color-accent-blue);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 4px 8px rgba(10, 200, 185, 0.3));
+}
+
+.progress-chart-area {
+  fill: url(#progressGradient);
+  opacity: 0.3;
+}
+
+.progress-chart-dot {
+  fill: var(--color-bg-primary);
+  stroke: var(--color-accent-blue);
+  stroke-width: 3;
+  r: 6;
+  transition: r 0.2s;
+}
+
+.progress-chart-dot:hover {
+  r: 10;
+  cursor: pointer;
+}
+
+.progress-chart-tooltip {
+  position: absolute;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-primary);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.progress-chart-tooltip.visible {
+  opacity: 1;
+}
+
+/* Role Distribution */
+.role-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.role-distribution-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.role-distribution-label {
+  min-width: 80px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.role-distribution-bar {
+  flex: 1;
+  height: 24px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.role-distribution-fill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.role-distribution-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: barShine 2s ease-in-out infinite;
+}
+
+@keyframes barShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.role-distribution-value {
+  min-width: 40px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+.role-top .role-distribution-fill { background: linear-gradient(90deg, #ff6b6b, #ff8787); }
+.role-jungle .role-distribution-fill { background: linear-gradient(90deg, #51cf66, #69db7c); }
+.role-mid .role-distribution-fill { background: linear-gradient(90deg, #339af0, #4dabf7); }
+.role-bot .role-distribution-fill { background: linear-gradient(90deg, #ffd43b, #ffe066); color: #091428; }
+.role-support .role-distribution-fill { background: linear-gradient(90deg, #cc5de8, #e599f7); }
+.role-flex .role-distribution-fill { background: linear-gradient(90deg, #868e96, #adb5bd); }
+
+/* Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-accent-blue);
+}
+
+.timeline-item.milestone {
+  border-left-color: var(--color-accent-gold);
+  background: linear-gradient(90deg, rgba(200, 155, 60, 0.1), transparent);
+}
+
+.timeline-item-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.timeline-item-content {
+  flex: 1;
+}
+
+.timeline-item-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.timeline-item-time {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Predictions */
+.prediction-card {
+  background: linear-gradient(135deg, rgba(10, 200, 185, 0.1), rgba(168, 85, 247, 0.1));
+  border: 1px solid rgba(10, 200, 185, 0.3);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.prediction-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.prediction-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.prediction-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.prediction-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  height: 80px;
+  margin-top: 1rem;
+}
+
+.prediction-bar {
+  width: 8px;
+  background: var(--color-accent-blue);
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: all 0.3s;
+}
+
+.prediction-bar.future {
+  background: var(--color-accent-purple);
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.prediction-bar:hover {
+  opacity: 1;
+  transform: scaleY(1.05);
+}
+
+/* Heatmap */
+.champion-heatmap {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 4px;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  background: var(--color-bg-tertiary);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.2);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.heatmap-cell.played {
+  background: var(--color-accent-blue);
+}
+
+.heatmap-cell.unplayed {
+  background: var(--color-bg-tertiary);
+}
+
+.heatmap-cell.hot {
+  background: linear-gradient(135deg, #ff6b6b, #ff8787);
+}
+
+.heatmap-cell.warm {
+  background: linear-gradient(135deg, #ffd43b, #ffe066);
+}
+
+.heatmap-cell.cold {
+  background: linear-gradient(135deg, #339af0, #4dabf7);
+}
+
+.heatmap-cell-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--color-text-primary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 100;
+}
+
+.heatmap-cell:hover .heatmap-cell-tooltip {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .advanced-stats-tabs {
+    flex-wrap: wrap;
+  }
+
+  .progress-chart {
+    height: 150px;
+  }
+}
