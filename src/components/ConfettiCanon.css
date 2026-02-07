@@ -1,0 +1,10 @@
+.confetti-canvas {
+  /* Styles handled inline for positioning */
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .confetti-canvas {
+    display: none;
+  }
+}

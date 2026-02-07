@@ -1,0 +1,22 @@
+.cursor-trail-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9997;
+}
+
+.cursor-trail-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(10, 200, 185, 0.6) 0%, transparent 70%);
+  transition: opacity 0.1s linear, transform 0.1s linear;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-trail-container {
+    display: none;
+  }
+}

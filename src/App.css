@@ -4,6 +4,109 @@
   flex-direction: column;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   PHASE 3: Hextech Background Effect
+   ======================================== */
+
+/* Subtle animated background */
+.app::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(10, 200, 185, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.02) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+  animation: backgroundPulse 10s ease-in-out infinite alternate;
+}
+
+@keyframes backgroundPulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Grid pattern overlay */
+.app::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(10, 200, 185, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 200, 185, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* Ensure content is above background effects */
+.app > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Screen Shake Animations - Applied to body */
+.screen-shake {
+  animation: screenShakeLight 0.3s ease;
+}
+
+.screen-shake-medium {
+  animation: screenShakeMedium 0.35s ease;
+}
+
+.screen-shake-heavy {
+  animation: screenShakeHeavy 0.4s ease;
+}
+
+@keyframes screenShakeLight {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-1px, -1px) rotate(-0.3deg); }
+  20% { transform: translate(1px, 1px) rotate(0.3deg); }
+  30% { transform: translate(-1px, 0) rotate(-0.2deg); }
+  40% { transform: translate(1px, -1px) rotate(0.2deg); }
+  50% { transform: translate(0, 1px) rotate(0deg); }
+  60% { transform: translate(-1px, -1px) rotate(0.2deg); }
+  70% { transform: translate(1px, 0) rotate(-0.2deg); }
+  80% { transform: translate(-1px, 1px) rotate(0.1deg); }
+  90% { transform: translate(0, -1px) rotate(-0.1deg); }
+}
+
+@keyframes screenShakeMedium {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-2px, -1px) rotate(-0.5deg); }
+  20% { transform: translate(2px, 1px) rotate(0.5deg); }
+  30% { transform: translate(-1px, 2px) rotate(-0.3deg); }
+  40% { transform: translate(1px, -1px) rotate(0.3deg); }
+  50% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+  60% { transform: translate(2px, -1px) rotate(0.5deg); }
+  70% { transform: translate(-1px, -1px) rotate(-0.3deg); }
+  80% { transform: translate(1px, 1px) rotate(0.3deg); }
+  90% { transform: translate(-1px, -2px) rotate(-0.2deg); }
+}
+
+@keyframes screenShakeHeavy {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-3px, -2px) rotate(-0.8deg); }
+  20% { transform: translate(3px, 2px) rotate(0.8deg); }
+  30% { transform: translate(-2px, 3px) rotate(-0.6deg); }
+  40% { transform: translate(2px, -2px) rotate(0.6deg); }
+  50% { transform: translate(-2px, 2px) rotate(-0.8deg); }
+  60% { transform: translate(3px, -2px) rotate(0.8deg); }
+  70% { transform: translate(-2px, -2px) rotate(-0.6deg); }
+  80% { transform: translate(2px, 2px) rotate(0.6deg); }
+  90% { transform: translate(-2px, -3px) rotate(-0.4deg); }
 }
 
 .app-error {
@@ -54,11 +157,14 @@
 
 /* Header */
 .app-header {
-  background: var(--color-bg-secondary);
+  background: linear-gradient(180deg, rgba(10, 20, 46, 0.95) 0%, rgba(10, 20, 46, 0.9) 100%);
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
   z-index: 50;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3),
+              0 0 0 1px rgba(10, 200, 185, 0.1);
 }
 
 .header-content {
@@ -85,10 +191,18 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--color-accent-gold), var(--color-accent-blue));
+  background: linear-gradient(135deg, var(--color-accent-gold), var(--color-hextech-cyan), var(--color-accent-blue));
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: titleShimmer 5s ease infinite;
+  filter: drop-shadow(0 0 10px rgba(10, 200, 185, 0.3));
+}
+
+@keyframes titleShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .logo-icon {
@@ -114,21 +228,68 @@
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-bg-primary);
-  background: linear-gradient(135deg, var(--color-accent-gold), #d4a843);
-  border: none;
+  background: linear-gradient(135deg, var(--color-accent-gold), #ffd700, var(--color-accent-gold));
+  background-size: 200% 100%;
+  border: 2px solid rgba(255, 215, 0, 0.5);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 15px rgba(200, 155, 60, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .random-champion-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(200, 155, 60, 0.4);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(200, 155, 60, 0.5),
+              0 0 30px rgba(255, 215, 0, 0.4);
+  background-position: 100% 0;
+  border-color: rgba(255, 215, 0, 0.8);
+}
+
+.random-champion-button:active:not(:disabled) {
+  transform: translateY(-1px) scale(0.98);
 }
 
 .random-champion-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.focus-mode-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-bg-primary);
+  background: linear-gradient(135deg, var(--color-hextech-purple), var(--color-hextech-pink));
+  background-size: 200% 100%;
+  border: 2px solid rgba(168, 85, 247, 0.5);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.focus-mode-button:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
+  background-position: 100% 0;
+  border-color: rgba(236, 72, 153, 0.8);
+}
+
+.focus-mode-button:active:not(:disabled) {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.focus-mode-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

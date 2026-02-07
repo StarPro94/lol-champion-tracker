@@ -8,6 +8,7 @@ interface ChampionGridProps {
   isLoading?: boolean;
   onToggle: (championId: string) => void;
   onLaneRoleToggle?: (championId: string, role: LaneRole) => void;
+  onScreenShake?: () => void;
   emptyMessage?: string;
 }
 
@@ -16,6 +17,7 @@ export const ChampionGrid: React.FC<ChampionGridProps> = ({
   isLoading = false,
   onToggle,
   onLaneRoleToggle,
+  onScreenShake,
   emptyMessage = 'Aucun champion trouvé',
 }) => {
   if (isLoading) {
@@ -72,6 +74,7 @@ export const ChampionGrid: React.FC<ChampionGridProps> = ({
             champion={champion}
             onToggle={onToggle}
             onLaneRoleToggle={onLaneRoleToggle}
+            onScreenShake={onScreenShake}
           />
         ))}
       </div>

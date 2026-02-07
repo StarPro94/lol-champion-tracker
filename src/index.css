@@ -12,6 +12,18 @@
   --color-accent-blue: #0AC8B9;
   --color-accent-blue-dark: #08b0a3;
 
+  /* Hextech Colors - Phase 3 */
+  --color-hextech-cyan: #00D4FF;
+  --color-hextech-blue: #091428;
+  --color-hextech-glow: rgba(0, 212, 255, 0.5);
+  --color-hextech-purple: #A855F7;
+  --color-hextech-pink: #EC4899;
+
+  /* Hextech Gradients */
+  --gradient-hextech: linear-gradient(135deg, #00D4FF 0%, #A855F7 50%, #091428 100%);
+  --gradient-gold: linear-gradient(135deg, #C89B3C 0%, #ffd700 50%, #C89B3C 100%);
+  --gradient-cosmic: linear-gradient(135deg, #091428 0%, #0AC8B9 50%, #00D4FF 100%);
+
   --color-border: #1e2d4d;
   --color-success: #51cf66;
   --color-error: #ff6b6b;

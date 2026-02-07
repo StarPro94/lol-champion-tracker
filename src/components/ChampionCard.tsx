@@ -3,21 +3,25 @@ import type { ChampionWithState, LaneRole } from '../types/champion';
 import { LANE_ROLES } from '../types/champion';
 import { getTagColor } from '../utils/ddragon';
 import { ClickParticles } from './ClickParticles';
+import { Shockwave } from './Shockwave';
 import './ChampionCard.css';
 
 interface ChampionCardProps {
   champion: ChampionWithState;
   onToggle: (championId: string) => void;
   onLaneRoleToggle?: (championId: string, role: LaneRole) => void;
+  onScreenShake?: () => void;
 }
 
 export const ChampionCard: React.FC<ChampionCardProps> = ({
   champion,
   onToggle,
   onLaneRoleToggle,
+  onScreenShake,
 }) => {
   const [showLaneMenu, setShowLaneMenu] = useState(false);
   const [particles, setParticles] = useState<{ x: number; y: number } | null>(null);
+  const [shockwave, setShockwave] = useState<{ x: number; y: number } | null>(null);
   const [isShaking, setIsShaking] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -52,8 +56,12 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
     // Trigger particles on newly played champions
     if (!champion.isPlayed) {
       setParticles({ x: clientX, y: clientY });
+      setShockwave({ x: clientX, y: clientY });
       setTimeout(() => setParticles(null), 800);
+      setTimeout(() => setShockwave(null), 1000);
       triggerHaptic();
+      // Trigger screen shake for more impact
+      onScreenShake?.();
     } else {
       // Trigger shake on uncheck
       setIsShaking(true);
@@ -79,6 +87,7 @@ export const ChampionCard: React.FC<ChampionCardProps> = ({
   return (
     <>
       {particles && <ClickParticles x={particles.x} y={particles.y} />}
+      {shockwave && <Shockwave x={shockwave.x} y={shockwave.y} />}
       <div
         className={`champion-card ${champion.isPlayed ? 'played' : 'unplayed'} ${isShaking ? 'shaking' : ''}`}
         onClick={handleCardClick}

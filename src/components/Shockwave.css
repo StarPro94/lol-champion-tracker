@@ -1,0 +1,43 @@
+.shockwave-container {
+  transform: translate(-50%, -50%);
+}
+
+.shockwave-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid var(--color);
+  transform: translate(-50%, -50%);
+  animation: shockwaveExpand 0.8s ease-out var(--delay) forwards;
+  box-shadow: 0 0 20px var(--color), inset 0 0 10px var(--color);
+  opacity: 0;
+}
+
+@keyframes shockwaveExpand {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+    border-width: 4px;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .shockwave-ring {
+    animation: none !important;
+    display: none !important;
+  }
+}

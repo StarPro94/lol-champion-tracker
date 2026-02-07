@@ -4,6 +4,8 @@ import { useFilters } from './hooks/useFilters';
 import { useMilestone } from './hooks/useMilestone';
 import { useStreak } from './hooks/useStreak';
 import { useSound } from './hooks/useSound';
+import { useScreenShake } from './hooks/useScreenShake';
+import { useXP, XPBar, LevelUpNotification } from './components/XPBar';
 import { togglePlayed, toggleLaneRole } from './utils/storage';
 import { getRandomUnplayedChampion } from './utils/filters';
 import { ProgressBar } from './components/ProgressBar';
@@ -17,6 +19,10 @@ import { StreakCounter } from './components/StreakCounter';
 import { SoundToggle } from './components/SoundToggle';
 import { AuthButton } from './components/AuthButton';
 import { RiotAccountLink } from './components/RiotAccountLink';
+import { CursorTrail } from './components/CursorTrail';
+import { FocusMode } from './components/FocusMode';
+import { DailyChallenge } from './components/DailyChallenge';
+import { ConfettiCanon } from './components/ConfettiCanon';
 import type { LaneRole } from './types/champion';
 import './App.css';
 
@@ -28,22 +34,29 @@ function App() {
   const [randomChampion, setRandomChampion] = useState<typeof champions[number] | null>(null);
   const [showRandomChampion, setShowRandomChampion] = useState(false);
   const [randomLaneRole, setRandomLaneRole] = useState<LaneRole | 'all'>('all');
+  const [showFocusMode, setShowFocusMode] = useState(false);
 
   // Calculer les stats globales
   const playedCount = champions.filter((c) => c.isPlayed).length;
   const totalCount = champions.length;
 
+  // XP System
+  const xpSystem = useXP();
+
   // Satisfying systems
   const { celebration, dismissCelebration } = useMilestone(playedCount, totalCount);
   const { streak, isVisible: streakVisible, incrementStreak, resetStreak } = useStreak();
   const { playClickSound, playMilestoneSound } = useSound();
+  const { shake: screenShake } = useScreenShake({ intensity: 'light' });
+  const { shake: heavyShake } = useScreenShake({ intensity: 'heavy', duration: 500 });
 
-  // Play milestone sound when celebration appears
+  // Play milestone sound and heavy shake when celebration appears
   useEffect(() => {
     if (celebration) {
       playMilestoneSound();
+      heavyShake();
     }
-  }, [celebration, playMilestoneSound]);
+  }, [celebration, playMilestoneSound, heavyShake]);
 
   // Toggle joué
   const handleToggle = useCallback((championId: string) => {
@@ -56,13 +69,15 @@ function App() {
     // Increment streak when marking a new champion as played
     if (!wasPlayed) {
       incrementStreak();
+      // Add XP for playing champion
+      xpSystem.addXP(xpSystem.getXpForChampion(playedCount + 1));
     } else {
       // Reset streak when unchecking (optional - removes the streak feeling)
       resetStreak();
     }
 
     refetch();
-  }, [champions, incrementStreak, resetStreak, playClickSound, refetch]);
+  }, [champions, incrementStreak, resetStreak, playClickSound, refetch, xpSystem, playedCount]);
 
   // Toggle rôle lane
   const handleLaneRoleToggle = useCallback((championId: string, role: LaneRole) => {
@@ -148,6 +163,7 @@ function App() {
 
   return (
     <div className="app">
+      <CursorTrail />
       <header className="app-header">
         <div className="header-content">
           <div className="header-left">
@@ -175,6 +191,21 @@ function App() {
             <AuthButton />
             <RiotAccountLink />
             <SoundToggle />
+            <button
+              type="button"
+              className="focus-mode-button"
+              onClick={() => setShowFocusMode(true)}
+              disabled={isLoading || champions.length === 0}
+              title="Mode Focus - Cochez les champions rapidement"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M10 2C5.58 2 2 5.58 2 10C2 14.42 5.58 18 10 18C14.42 18 18 14.42 18 10C18 5.58 14.42 2 10 2ZM10 6C10.55 6 11 6.45 11 7C11 7.55 10.55 8 10 8C9.45 8 9 7.55 9 7C9 6.45 9.45 6 10 6ZM10 16C8.67 16 7.5 14.83 7.5 13.5C7.5 12.17 8.67 11 10 11C11.33 11 12.5 12.17 12.5 13.5C12.5 14.83 11.33 16 10 16Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Focus
+            </button>
             <button
               type="button"
               className="random-champion-button"
@@ -211,6 +242,22 @@ function App() {
           </div>
 
           <div className="sidebar-section">
+            <XPBar
+              totalXP={xpSystem.totalXP}
+              currentLevel={xpSystem.currentLevel}
+              nextLevel={xpSystem.nextLevel}
+              progress={xpSystem.progress}
+            />
+          </div>
+
+          <div className="sidebar-section">
+            <DailyChallenge
+              champions={champions}
+              onToggle={handleToggle}
+            />
+          </div>
+
+          <div className="sidebar-section">
             <StatsPanel champions={champions} />
           </div>
 
@@ -231,6 +278,7 @@ function App() {
             isLoading={isLoading}
             onToggle={handleToggle}
             onLaneRoleToggle={handleLaneRoleToggle}
+            onScreenShake={screenShake}
             emptyMessage={
               filters.search || filters.status !== 'all' || filters.tags.length > 0
                 ? 'Aucun champion ne correspond à vos critères'
@@ -377,9 +425,27 @@ function App() {
 
       {/* Satisfying Systems */}
       {celebration && (
-        <MilestoneCelebration milestone={celebration} onClose={dismissCelebration} />
+        <>
+          <ConfettiCanon />
+          <MilestoneCelebration milestone={celebration} onClose={dismissCelebration} />
+        </>
       )}
       {streakVisible && <StreakCounter count={streak} />}
+      {xpSystem.showLevelUp && (
+        <LevelUpNotification
+          level={xpSystem.currentLevel}
+          onDismiss={xpSystem.dismissLevelUp}
+        />
+      )}
+
+      {/* Focus Mode */}
+      {showFocusMode && (
+        <FocusMode
+          champions={champions}
+          onToggle={handleToggle}
+          onClose={() => setShowFocusMode(false)}
+        />
+      )}
     </div>
   );
 }
