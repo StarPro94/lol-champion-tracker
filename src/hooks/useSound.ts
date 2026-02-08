@@ -25,7 +25,7 @@ const getAudioContext = (): AudioContext | null => {
 export const useSound = (): UseSoundReturn => {
   // Start with sound enabled by default at low volume
   const [enabled, setEnabled] = useState(true);
-  const [volume, setVolume] = useState(0.15); // Lower default volume
+  const [volume, setVolume] = useState(0.05); // Much lower default volume - QUIET!
   const [hasInteracted, setHasInteracted] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
 

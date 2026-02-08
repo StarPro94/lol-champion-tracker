@@ -6,9 +6,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name][extname]',
+      },
+    },
   },
   server: {
     port: 3000,
     open: true,
   },
+  assetsInclude: ['**/*.mp4'],
 })

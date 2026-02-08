@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run copy-video",
+    "copy-video": "if exist public\\dance-dancing.mp4 (copy public\\dance-dancing.mp4 dist\\dance-dancing.mp4) else (echo Video file not found in public folder)",
     "preview": "vite preview",
     "lint": "eslint .",
     "type-check": "tsc --noEmit"
