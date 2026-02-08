@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { useChampions } from './hooks/useChampions';
 import { useFilters } from './hooks/useFilters';
 import { useMilestone } from './hooks/useMilestone';
-import { useStreak } from './hooks/useStreak';
 import { useSound } from './hooks/useSound';
 import { useScreenShake } from './hooks/useScreenShake';
 import { useXP, XPBar, LevelUpNotification } from './components/XPBar';
@@ -16,7 +15,6 @@ import { StatsPanel } from './components/StatsPanel';
 import { ChampionGrid } from './components/ChampionGrid';
 import { ImportExport } from './components/ImportExport';
 import { MilestoneCelebration } from './components/MilestoneCelebration';
-import { StreakCounter } from './components/StreakCounter';
 import { SoundToggle } from './components/SoundToggle';
 import { AuthButton } from './components/AuthButton';
 import { RiotAccountLink } from './components/RiotAccountLink';
@@ -49,7 +47,6 @@ function App() {
 
   // Satisfying systems
   const { celebration, dismissCelebration } = useMilestone(playedCount, totalCount);
-  const { streak, isVisible: streakVisible, incrementStreak, resetStreak } = useStreak();
   const { playClickSound, playMilestoneSound } = useSound();
   const { shake: screenShake } = useScreenShake({ intensity: 'light' });
   const { shake: heavyShake } = useScreenShake({ intensity: 'heavy', duration: 500 });
@@ -71,20 +68,15 @@ function App() {
     togglePlayed(championId);
     playClickSound();
 
-    // Increment streak when marking a new champion as played
+    // Add XP for playing champion and trigger dancing dwarf!
     if (!wasPlayed) {
-      incrementStreak();
-      // Add XP for playing champion
       xpSystem.addXP(xpSystem.getXpForChampion(playedCount + 1));
       // Trigger dancing dwarves! 🧔💃
       triggerDwarves(false);
-    } else {
-      // Reset streak when unchecking (optional - removes the streak feeling)
-      resetStreak();
     }
 
     refetch();
-  }, [champions, incrementStreak, resetStreak, playClickSound, refetch, xpSystem, playedCount]);
+  }, [champions, playClickSound, refetch, xpSystem, playedCount, triggerDwarves]);
 
   // Toggle rôle lane
   const handleLaneRoleToggle = useCallback((championId: string, role: LaneRole) => {
@@ -437,7 +429,6 @@ function App() {
           <MilestoneCelebration milestone={celebration} onClose={dismissCelebration} />
         </>
       )}
-      {streakVisible && <StreakCounter count={streak} />}
       {xpSystem.showLevelUp && (
         <LevelUpNotification
           level={xpSystem.currentLevel}
