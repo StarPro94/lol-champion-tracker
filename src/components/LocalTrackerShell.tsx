@@ -1,23 +1,52 @@
-import React from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Search, CloudOff, Cloud, ShieldCheck, Zap, Star, ArrowUpDown } from "lucide-react";
+﻿import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, CheckCircle2, XCircle, Save, Shield } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-
-import type { ChampionFilters, ChampionListItem, ChampionProgressSummary } from "../../shared/champions";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+interface Summary {
+  total: number;
+  validated: number;
+  remaining: number;
+  percentage: number;
+}
+
+interface Filters {
+  search: string;
+  status: "all" | "validated" | "unvalidated";
+  tag: string;
+  resource: string;
+  sort: "name-asc" | "name-desc" | "recently-validated" | "unvalidated-first";
+}
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Champion {
+  id: string;
+  name: string;
+  titleFr: string;
+  imageUrl: string;
+  splashImageUrl: string;
+  tagsFr: string[];
+  resourceFr: string;
+  isValidated: boolean;
+}
+
 interface LocalTrackerShellProps {
-  summary: ChampionProgressSummary;
-  filters: ChampionFilters;
-  tagOptions: string[];
-  resourceOptions: string[];
-  champions: ChampionListItem[];
+  summary: Summary;
+  filters: Filters;
+  tagOptions: Option[];
+  resourceOptions: Option[];
+  champions: Champion[];
   onSearch: (value: string) => void;
-  onFilterChange: <K extends keyof ChampionFilters>(key: K, value: ChampionFilters[K]) => void;
+  onFilterChange: (key: keyof Filters, value: Filters[keyof Filters]) => void;
   onToggleChampion: (id: string) => void;
 }
 
@@ -32,324 +61,305 @@ export default function LocalTrackerShell({
   onToggleChampion,
 }: LocalTrackerShellProps) {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-zinc-950 pb-20 font-sans text-white selection:bg-yellow-400 selection:text-black">
-      <header className="relative mx-auto max-w-7xl px-6 pb-8 pt-12">
-        <div className="absolute left-4 top-10 z-20 flex h-24 w-24 -rotate-12 items-center justify-center rounded-full border-4 border-black bg-yellow-400 p-2 text-center text-xs font-black uppercase leading-none text-black shadow-xl md:left-10">
-          Local
-          <br />
-          Storage
-          <br />
-          Active
-        </div>
-        <div className="absolute right-4 top-20 z-20 flex h-28 w-28 rotate-12 items-center justify-center rounded-xl border-4 border-black bg-cyan-400 p-2 text-center text-sm font-black uppercase leading-none text-black shadow-xl md:right-10">
-          Progress
-          <br />
-          Safe!
-        </div>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.16),_transparent_30%),radial-gradient(circle_at_20%_20%,_rgba(236,72,153,0.22),_transparent_28%),linear-gradient(180deg,_#18181b_0%,_#09090b_55%,_#0f172a_100%)] text-white selection:bg-pink-500 selection:text-black font-sans antialiased">
+      <div className="pointer-events-none fixed inset-0 opacity-[0.08] mix-blend-screen">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
+          <filter id="noiseFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+        </svg>
+      </div>
 
-        <div className="relative z-10 space-y-8">
-          <div className="flex flex-col items-center space-y-4 text-center">
-            <motion.h1
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="bg-gradient-to-r from-pink-400 via-yellow-400 to-cyan-400 bg-clip-text py-2 text-6xl font-black italic uppercase tracking-tighter text-transparent md:text-8xl"
-            >
-              CHAMPION TRACKER
-            </motion.h1>
-            <div className="inline-block skew-x-[-12deg] bg-pink-500 px-6 py-2 text-xl font-black uppercase tracking-wider text-black shadow-[8px_8px_0px_rgba(236,72,153,0.3)]">
-              LUXURY MASTER LIST
-            </div>
-          </div>
-
-          <div className="group relative mx-auto max-w-3xl overflow-hidden rounded-[32px] border-4 border-white bg-zinc-900 p-6 shadow-[15px_15px_0px_rgba(255,255,255,0.1)] md:p-8">
-            <div className="absolute right-0 top-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
-              <CloudOff size={120} strokeWidth={3} />
-            </div>
-
-            <div className="relative z-10 flex flex-col items-center gap-6 md:flex-row">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-4 border-black bg-cyan-400">
-                <ShieldCheck className="text-black" size={40} strokeWidth={2.5} />
+      <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-6 md:px-8 md:py-10 lg:px-12 lg:py-14">
+        <header className="relative overflow-hidden rounded-[36px] border border-white/12 bg-zinc-950/70 px-6 py-8 shadow-[0_24px_80px_rgba(15,23,42,0.55)] backdrop-blur-xl md:px-8 md:py-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(250,204,21,0.18),_transparent_24%),radial-gradient(circle_at_bottom_left,_rgba(34,211,238,0.16),_transparent_28%)]" />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="space-y-4">
+              <div className="inline-flex items-center rounded-full border border-cyan-400/30 bg-cyan-400/12 px-3 py-1 text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300">
+                Collection personnelle
               </div>
-              <div className="space-y-2 text-center md:text-left">
-                <h2 className="text-2xl font-black italic uppercase text-cyan-400">Privacy First Mode</h2>
-                <p className="max-w-md font-bold leading-tight text-zinc-400">
-                  Progress is saved directly to your browser&apos;s <span className="text-white">localStorage</span>.
-                  No account needed. Cloud sync can come later if the user wants it.
+              <div className="space-y-3">
+                <h1 className="bg-gradient-to-r from-pink-400 via-yellow-300 to-cyan-300 bg-clip-text text-5xl font-black italic uppercase tracking-[-0.08em] text-transparent md:text-7xl">
+                  Suivi des champions
+                </h1>
+                <p className="max-w-2xl text-sm font-medium leading-6 text-zinc-300 md:text-base">
+                  Suivez votre progression, filtrez votre collection et validez vos champions dans une interface plus lisible, plus dense et plus proche de l'univers du jeu.
                 </p>
               </div>
-              <div className="md:ml-auto">
-                <button
-                  disabled
-                  className="group relative flex cursor-not-allowed items-center gap-2 rounded-xl border-2 border-white/20 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-zinc-500"
-                  type="button"
-                >
-                  <Cloud size={16} />
-                  Sync Disabled
-                  <span className="absolute -right-3 -top-3 rounded border border-white/20 bg-zinc-800 px-2 py-1 text-[8px] text-zinc-400">
-                    COMING LATER
-                  </span>
-                </button>
+            </div>
+
+            <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/5 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-400 lg:self-auto">
+              <Save size={12} className="text-cyan-300" />
+              <span>Mode local</span>
+            </div>
+          </div>
+        </header>
+
+        <section className="overflow-hidden rounded-[36px] border border-white/12 bg-zinc-950/75 p-2 shadow-[0_24px_80px_rgba(8,15,35,0.55)] backdrop-blur-xl">
+          <div className="rounded-[30px] border border-white/6 bg-[linear-gradient(135deg,rgba(236,72,153,0.14),rgba(24,24,27,0.92)_28%,rgba(34,211,238,0.10)_100%)] p-6 md:p-8">
+            <div className="grid gap-4 md:grid-cols-4">
+              <StatCard label="Total" value={summary.total} tone="cyan" />
+              <StatCard label="Validés" value={summary.validated} tone="pink" />
+              <StatCard label="Restants" value={summary.remaining} tone="yellow" />
+              <StatCard label="Complétion" value={`${summary.percentage}%`} tone="white" />
+            </div>
+
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.22em] text-zinc-400">
+                <span>Progression globale</span>
+                <span>{summary.validated} sur {summary.total}</span>
+              </div>
+              <div className="relative h-4 overflow-hidden rounded-full border border-white/10 bg-zinc-900/80">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${summary.percentage}%` }}
+                  transition={{ duration: 0.9, ease: "circOut" }}
+                  className="h-full rounded-full bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-400"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)] opacity-40" />
               </div>
             </div>
           </div>
-        </div>
-      </header>
+        </section>
 
-      <section className="mx-auto mb-12 max-w-7xl px-6">
-        <div className="rounded-[40px] border-[4px] border-white bg-pink-500 p-2 shadow-[20px_20px_0px_rgba(236,72,153,0.2)]">
-          <div className="relative space-y-6 overflow-hidden rounded-[32px] bg-zinc-900 p-8 text-white">
-            <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-              <div className="flex items-center gap-6">
-                <div className="relative">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-pink-500 bg-white text-black">
-                    <Star className="fill-pink-500 text-pink-500" size={32} />
-                  </div>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-                    className="absolute -inset-2 rounded-full border-t-4 border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <p className="text-4xl font-black italic uppercase leading-none">{summary.percentage}%</p>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-pink-400">Current Completion</p>
-                </div>
-              </div>
-
-              <div className="grid w-full grid-cols-2 gap-4 md:w-auto">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
-                  <p className="text-2xl font-black">{summary.validated}</p>
-                  <p className="text-[9px] font-bold uppercase opacity-60">Completed</p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
-                  <p className="text-2xl font-black">{summary.total - summary.validated}</p>
-                  <p className="text-[9px] font-bold uppercase opacity-60">Remaining</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative h-12 overflow-hidden rounded-full border-4 border-white bg-zinc-800">
-              <motion.div
-                animate={{ x: [-1000, 0] }}
-                transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
-                className="pointer-events-none absolute inset-0 flex items-center whitespace-nowrap opacity-10"
-              >
-                {Array.from({ length: 10 }).map((_, index) => (
-                  <span key={index} className="mx-4 text-xl font-black italic uppercase">
-                    Leveling Up * Tracking Progress * Elite Status *
-                  </span>
-                ))}
-              </motion.div>
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${summary.percentage}%` }}
-                className="relative z-10 h-full border-r-4 border-white bg-gradient-to-r from-pink-500 via-yellow-400 to-cyan-500 shadow-[0_0_20px_rgba(236,72,153,0.5)]"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto mb-12 max-w-7xl px-6">
-        <div className="rounded-[32px] bg-pink-500 p-1.5 shadow-[15px_15px_0px_rgba(236,72,153,0.2)]">
-          <div className="flex flex-col gap-6 rounded-[28px] border-4 border-white bg-zinc-900 p-6 xl:flex-row xl:items-stretch">
-            <div className="group relative flex-grow">
-              <div className="absolute left-4 top-[-2.25rem] z-10 skew-x-[-12deg] border-2 border-black bg-yellow-400 px-4 py-1 text-xs font-black uppercase text-black transition-transform group-focus-within:scale-110">
-                CHAMPION SCANNER
-              </div>
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-cyan-400 transition-colors group-focus-within:text-pink-500" size={28} />
+        <nav className="sticky top-4 z-40 rounded-[32px] border border-white/12 bg-zinc-950/78 p-4 shadow-[0_20px_60px_rgba(8,15,35,0.55)] backdrop-blur-xl">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+            <div className="relative group xl:col-span-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors group-focus-within:text-cyan-300" size={18} />
               <input
                 type="text"
-                placeholder="ENTER NAME..."
+                placeholder="Rechercher un champion"
                 value={filters.search}
                 onChange={(event) => onSearch(event.target.value)}
-                className="w-full rounded-[20px] border-4 border-white/20 bg-black/40 py-6 pl-16 pr-8 text-2xl font-black italic uppercase placeholder:text-zinc-700 outline-none transition-all focus:border-cyan-400"
+                className="w-full rounded-2xl border border-white/10 bg-black/40 py-3 pl-12 pr-4 text-sm font-bold text-white outline-none transition-all placeholder:text-zinc-600 focus:border-cyan-400/60 focus:bg-black/55"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-4">
-              <div className="group relative min-w-[140px]">
-                <div className="absolute left-3 top-[-0.75rem] z-10 skew-x-[-8deg] border-2 border-black bg-pink-500 px-2 py-0.5 text-[10px] font-black uppercase text-black">
-                  ROLE
-                </div>
-                <select
-                  value={filters.tag}
-                  onChange={(event) => onFilterChange("tag", event.target.value)}
-                  className="w-full cursor-crosshair appearance-none rounded-[18px] border-2 border-white/10 bg-white/5 p-5 pt-7 text-xs font-black uppercase tracking-tighter outline-none transition-all hover:border-black hover:bg-pink-500 hover:text-black"
-                >
-                  <option value="all">ALL ROLES</option>
-                  {tagOptions.map((role) => (
-                    <option key={role} value={role}>{role}</option>
-                  ))}
-                </select>
-              </div>
+            <FilterGroup
+              label="Rôle"
+              value={filters.tag}
+              options={tagOptions}
+              onChange={(value) => onFilterChange("tag", value)}
+            />
 
-              <div className="group relative min-w-[140px]">
-                <div className="absolute left-3 top-[-0.75rem] z-10 skew-x-[-8deg] border-2 border-black bg-cyan-400 px-2 py-0.5 text-[10px] font-black uppercase text-black">
-                  STATUS
-                </div>
-                <select
-                  value={filters.status}
-                  onChange={(event) => onFilterChange("status", event.target.value as ChampionFilters["status"])}
-                  className="w-full cursor-crosshair appearance-none rounded-[18px] border-2 border-white/10 bg-white/5 p-5 pt-7 text-xs font-black uppercase tracking-tighter outline-none transition-all hover:border-black hover:bg-cyan-400 hover:text-black"
-                >
-                  <option value="all">ALL STATUS</option>
-                  <option value="validated">VALIDATED</option>
-                  <option value="unvalidated">PENDING</option>
-                </select>
-              </div>
+            <FilterGroup
+              label="Statut"
+              value={filters.status}
+              options={[
+                { value: "all", label: "Tous les statuts" },
+                { value: "validated", label: "Validés" },
+                { value: "unvalidated", label: "À faire" },
+              ]}
+              onChange={(value) => onFilterChange("status", value as Filters["status"])}
+            />
 
-              <div className="group relative min-w-[140px]">
-                <div className="absolute left-3 top-[-0.75rem] z-10 skew-x-[-8deg] border-2 border-black bg-yellow-400 px-2 py-0.5 text-[10px] font-black uppercase text-black">
-                  RESOURCE
-                </div>
-                <select
-                  value={filters.resource}
-                  onChange={(event) => onFilterChange("resource", event.target.value)}
-                  className="w-full cursor-crosshair appearance-none rounded-[18px] border-2 border-white/10 bg-white/5 p-5 pt-7 text-xs font-black uppercase tracking-tighter outline-none transition-all hover:border-black hover:bg-yellow-400 hover:text-black"
-                >
-                  <option value="all">ALL ENERGY</option>
-                  {resourceOptions.map((resource) => (
-                    <option key={resource} value={resource}>{resource}</option>
-                  ))}
-                </select>
-              </div>
+            <FilterGroup
+              label="Ressource"
+              value={filters.resource}
+              options={resourceOptions}
+              onChange={(value) => onFilterChange("resource", value)}
+            />
 
-              <div className="group relative min-w-[140px]">
-                <div className="absolute left-3 top-[-0.75rem] z-10 skew-x-[-8deg] border-2 border-black bg-white px-2 py-0.5 text-[10px] font-black uppercase text-black">
-                  ORDER
-                </div>
-                <select
-                  value={filters.sort}
-                  onChange={(event) => onFilterChange("sort", event.target.value as ChampionFilters["sort"])}
-                  className="w-full cursor-crosshair appearance-none rounded-[18px] border-2 border-white/10 bg-white/5 p-5 pt-7 text-xs font-black uppercase tracking-tighter outline-none transition-all hover:border-black hover:bg-white hover:text-black"
-                >
-                  <option value="name-asc">A TO Z</option>
-                  <option value="name-desc">Z TO A</option>
-                  <option value="recently-validated">RECENT</option>
-                  <option value="unvalidated-first">PENDING</option>
-                </select>
-                <ArrowUpDown className="pointer-events-none absolute bottom-5 right-4 opacity-40 group-hover:text-black group-hover:opacity-100" size={12} />
-              </div>
-            </div>
+            <FilterGroup
+              label="Tri"
+              value={filters.sort}
+              options={[
+                { value: "name-asc", label: "Nom (A-Z)" },
+                { value: "name-desc", label: "Nom (Z-A)" },
+                { value: "recently-validated", label: "Validation récente" },
+                { value: "unvalidated-first", label: "À faire d'abord" },
+              ]}
+              onChange={(value) => onFilterChange("sort", value as Filters["sort"])}
+            />
           </div>
-        </div>
-      </section>
+        </nav>
 
-      <main className="mx-auto max-w-7xl px-6">
-        {champions.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <AnimatePresence mode="popLayout">
-              {champions.map((champion) => (
-                <motion.div
-                  key={champion.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  whileHover={{ y: -5 }}
-                  className={cn(
-                    "group relative rounded-[32px] border-4 p-2 transition-all duration-300",
-                    champion.isValidated
-                      ? "border-white bg-pink-500 shadow-[10px_10px_0px_rgba(236,72,153,0.3)]"
-                      : "border-zinc-700 bg-zinc-800 hover:border-zinc-500",
-                  )}
-                >
-                  <div className="relative flex h-full flex-col space-y-4 overflow-hidden rounded-[24px] bg-zinc-900 p-5">
-                    <div className={cn(
-                      "absolute right-0 top-0 h-32 w-32 blur-[40px] opacity-20 transition-all group-hover:opacity-40",
-                      champion.isValidated ? "bg-pink-400" : "bg-cyan-400",
-                    )} />
-
-                    <div className="relative z-10 flex items-start justify-between">
-                      <div className="space-y-1">
-                        <h3 className="text-2xl font-black italic uppercase leading-none tracking-tighter">
-                          {champion.name}
-                        </h3>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">
-                          {champion.title}
-                        </p>
-                      </div>
-                      <div className={cn(
-                        "flex h-10 w-10 items-center justify-center rounded-full border-2",
-                        champion.isValidated ? "border-black bg-pink-500 text-black" : "border-zinc-700 bg-zinc-800 text-zinc-500",
-                      )}>
-                        {champion.isValidated ? <Zap size={18} fill="currentColor" /> : <div className="text-xs font-black">?</div>}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {champion.tags.map((role) => (
-                        <span key={role} className="rounded-full border border-zinc-700 bg-zinc-800 px-2 py-1 text-[8px] font-black uppercase">
-                          {role}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="-mx-5 mt-auto flex items-center justify-between border-t border-white/5 bg-white/5 px-5 py-4">
-                      <div className="text-[8px] font-bold uppercase opacity-40">
-                        RSC: {champion.partype}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => onToggleChampion(champion.id)}
-                        className={cn(
-                          "rounded-xl px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all",
-                          champion.isValidated
-                            ? "bg-black text-white hover:bg-zinc-800"
-                            : "bg-pink-500 text-black hover:scale-105 active:scale-95",
-                        )}
-                      >
-                        {champion.isValidated ? "Revoke" : "Validate"}
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <div className="space-y-6 py-24 text-center">
-            <div className="inline-block rounded-full border-4 border-zinc-800 bg-zinc-900 p-8 animate-pulse">
-              <Search size={64} className="text-zinc-700" />
+        <main>
+          {champions.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <AnimatePresence>
+                {champions.map((champion) => (
+                  <ChampionCard
+                    key={champion.id}
+                    champion={champion}
+                    onToggle={() => onToggleChampion(champion.id)}
+                  />
+                ))}
+              </AnimatePresence>
             </div>
-            <div className="space-y-2">
-              <h2 className="text-4xl font-black italic uppercase text-zinc-700">No Champions Found</h2>
-              <p className="font-bold uppercase tracking-widest text-zinc-600">Adjust your filters or try a different search</p>
-            </div>
-          </div>
-        )}
-      </main>
-
-      <footer className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2">
-        <div className="group relative cursor-default">
-          <div className="absolute -right-6 -top-6 z-20 -rotate-12 border-4 border-black bg-yellow-400 px-4 py-1.5 text-[10px] font-black uppercase tracking-tighter text-black shadow-xl">
-            Cloud Sync Soon!
-          </div>
-
-          <div className="flex items-center gap-8 rounded-full border-4 border-white bg-zinc-900 px-8 py-3 text-white shadow-[12px_12px_0px_rgba(236,72,153,0.3)] transition-all hover:translate-y-[-4px] hover:shadow-[16px_16px_0px_rgba(236,72,153,0.4)]">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="h-5 w-5 animate-pulse rounded-full border-4 border-black bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)]" />
-                <div className="pointer-events-none absolute inset-0 scale-150 rounded-full border-2 border-white opacity-10" />
+          ) : (
+            <div className="rounded-[36px] border border-dashed border-white/12 bg-zinc-950/70 px-6 py-16 text-center shadow-[0_20px_60px_rgba(8,15,35,0.45)] backdrop-blur-xl">
+              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-white/10 bg-white/5">
+                <Shield className="text-zinc-600" size={40} />
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black italic uppercase leading-none tracking-[0.2em] text-pink-500">Local Mode Active</span>
-                <span className="mt-1.5 text-[9px] font-bold uppercase tracking-widest opacity-40">v1.0.0 � On-Device Only</span>
+              <div className="mt-6 space-y-2">
+                <h2 className="text-3xl font-black italic uppercase tracking-tight text-zinc-200">Aucun champion trouvé</h2>
+                <p className="mx-auto max-w-xl text-sm text-zinc-400">
+                  Ajustez votre recherche ou vos filtres pour retrouver un champion dans votre collection.
+                </p>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onSearch("");
+                  onFilterChange("status", "all");
+                  onFilterChange("tag", "all");
+                  onFilterChange("resource", "all");
+                  onFilterChange("sort", "name-asc");
+                }}
+                className="mt-6 rounded-xl border border-white/12 bg-white px-5 py-3 text-xs font-black uppercase tracking-[0.2em] text-black transition-all hover:bg-pink-500"
+              >
+                Réinitialiser les filtres
+              </button>
             </div>
-
-            <div className="h-8 w-[4px] skew-x-[-20deg] bg-white/10" />
-
-            <div className="flex flex-col items-center">
-              <span className="bg-gradient-to-r from-pink-400 via-yellow-400 to-cyan-400 bg-clip-text text-2xl font-black italic leading-none tracking-tighter text-transparent">
-                {summary.validated}
-              </span>
-              <span className="text-[8px] font-black uppercase tracking-widest opacity-60">Verified</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+          )}
+        </main>
+      </div>
     </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string | number;
+  tone: "pink" | "cyan" | "yellow" | "white";
+}) {
+  const toneClasses = {
+    pink: "from-pink-500/22 to-pink-500/5 text-pink-300",
+    cyan: "from-cyan-400/18 to-cyan-400/5 text-cyan-300",
+    yellow: "from-yellow-400/18 to-yellow-400/5 text-yellow-300",
+    white: "from-white/14 to-white/5 text-white",
+  };
+
+  return (
+    <div className={cn("rounded-[24px] border border-white/8 bg-gradient-to-br p-5", toneClasses[tone])}>
+      <p className="text-[11px] font-black uppercase tracking-[0.22em] text-zinc-400">{label}</p>
+      <p className="mt-3 text-4xl font-black italic tracking-tight text-white">{value}</p>
+    </div>
+  );
+}
+
+function FilterGroup({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: Option[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="ml-1 text-[11px] font-black uppercase tracking-[0.18em] text-zinc-500">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm font-bold text-white outline-none transition-all hover:border-white/20 focus:border-pink-500/60"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ChampionCard({
+  champion,
+  onToggle,
+}: {
+  champion: Champion;
+  onToggle: () => void;
+}) {
+  const [visualSrc, setVisualSrc] = useState(champion.splashImageUrl);
+  const [usedFallback, setUsedFallback] = useState(false);
+
+  return (
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      whileHover={{ y: -6 }}
+      className={cn(
+        "group relative overflow-hidden rounded-[32px] border bg-zinc-950/85 shadow-[0_18px_40px_rgba(8,15,35,0.4)]",
+        champion.isValidated ? "border-cyan-400/45" : "border-white/10 hover:border-pink-400/45",
+      )}
+    >
+      <div className="relative aspect-[4/5] overflow-hidden">
+        <img
+          src={visualSrc}
+          alt={`Visuel de ${champion.name}`}
+          loading="lazy"
+          decoding="async"
+          onError={() => {
+            if (!usedFallback) {
+              setVisualSrc(champion.imageUrl);
+              setUsedFallback(true);
+            }
+          }}
+          className={cn(
+            "absolute inset-0 h-full w-full object-cover object-top transition duration-700 group-hover:scale-105",
+            usedFallback ? "object-contain bg-zinc-900 p-10" : "",
+            champion.isValidated ? "opacity-70 saturate-[0.9]" : "",
+          )}
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,9,11,0.12),rgba(9,9,11,0.42)_46%,rgba(9,9,11,0.96)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 p-5">
+          <div className="flex flex-wrap gap-2">
+            {champion.tagsFr.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border border-white/10 bg-black/45 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-zinc-100 backdrop-blur-md"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {champion.isValidated ? (
+          <div className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border border-cyan-300/40 bg-cyan-300/18 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.32)] backdrop-blur-md">
+            <CheckCircle2 size={20} />
+          </div>
+        ) : null}
+      </div>
+
+      <div className="space-y-4 p-5">
+        <div className="space-y-1">
+          <h3 className="text-2xl font-black italic uppercase tracking-tight text-white transition-colors group-hover:text-pink-300">
+            {champion.name}
+          </h3>
+          <p className="text-xs font-medium text-zinc-400">{champion.titleFr}</p>
+        </div>
+
+        <div className="inline-flex items-center rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200">
+          {champion.resourceFr}
+        </div>
+
+        <button
+          type="button"
+          onClick={onToggle}
+          className={cn(
+            "flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-xs font-black uppercase tracking-[0.22em] transition-all",
+            champion.isValidated
+              ? "border-zinc-700 bg-zinc-900 text-zinc-200 hover:border-red-400 hover:bg-red-500 hover:text-white"
+              : "border-white bg-white text-black hover:border-pink-500 hover:bg-pink-500",
+          )}
+        >
+          {champion.isValidated ? <XCircle size={16} /> : <CheckCircle2 size={16} />}
+          {champion.isValidated ? "Retirer" : "Valider"}
+        </button>
+      </div>
+    </motion.article>
   );
 }

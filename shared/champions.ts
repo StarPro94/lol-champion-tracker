@@ -3,9 +3,13 @@ export interface ChampionCatalogEntry {
   key: string;
   name: string;
   title: string;
+  titleFr: string;
   imageUrl: string;
+  splashImageUrl: string;
   tags: string[];
+  tagsFr: string[];
   partype: string;
+  resourceFr: string;
 }
 
 export interface ChampionListItem extends ChampionCatalogEntry {

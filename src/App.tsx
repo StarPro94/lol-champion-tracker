@@ -17,6 +17,10 @@ const DEFAULT_FILTERS: ChampionFilters = {
   sort: "name-asc",
 };
 
+function normalizeResourceValue(value: string): string {
+  return value.trim() === "" ? "None" : value;
+}
+
 function getInitialProgress(): LegacyMigrationEntry[] {
   if (typeof window === "undefined") {
     return [];
@@ -113,8 +117,8 @@ function CelebrationOverlay({
             style={{ transform: "skewX(-12deg)" }}
           >
             <div style={{ transform: "skewX(12deg)" }}>
-              <p className="text-xs font-black uppercase tracking-[0.5em]">Dwarf celebration</p>
-              <h2 className="text-4xl font-black italic uppercase md:text-6xl">Validated!</h2>
+              <p className="text-xs font-black uppercase tracking-[0.5em]">Nain en fête</p>
+              <h2 className="text-4xl font-black italic uppercase md:text-6xl">Champion validé !</h2>
               <p className="text-xs font-bold uppercase tracking-[0.3em] opacity-70">{event.championId}</p>
             </div>
           </motion.div>
@@ -134,11 +138,40 @@ export function App() {
   }, [localProgress]);
 
   const tagOptions = useMemo(() => {
-    return [...new Set(championCatalog.champions.flatMap((champion) => champion.tags))].sort();
+    const labels = new Map<string, string>();
+
+    for (const champion of championCatalog.champions) {
+      champion.tags.forEach((tag, index) => {
+        if (!labels.has(tag)) {
+          labels.set(tag, champion.tagsFr[index] ?? tag);
+        }
+      });
+    }
+
+    return [
+      { value: "all", label: "Tous les rôles" },
+      ...[...labels.entries()]
+        .sort((left, right) => left[1].localeCompare(right[1], "fr", { sensitivity: "base" }))
+        .map(([value, label]) => ({ value, label })),
+    ];
   }, []);
 
   const resourceOptions = useMemo(() => {
-    return [...new Set(championCatalog.champions.map((champion) => champion.partype))].sort();
+    const labels = new Map<string, string>();
+
+    for (const champion of championCatalog.champions) {
+      const normalizedResource = normalizeResourceValue(champion.partype);
+      if (!labels.has(normalizedResource)) {
+        labels.set(normalizedResource, champion.resourceFr);
+      }
+    }
+
+    return [
+      { value: "all", label: "Toutes les ressources" },
+      ...[...labels.entries()]
+        .sort((left, right) => left[1].localeCompare(right[1], "fr", { sensitivity: "base" }))
+        .map(([value, label]) => ({ value, label })),
+    ];
   }, []);
 
   const filteredChampions = useMemo(() => {
@@ -183,7 +216,9 @@ export function App() {
         resourceOptions={resourceOptions}
         champions={filteredChampions}
         onSearch={(value) => handleFilterChange("search", value)}
-        onFilterChange={handleFilterChange}
+        onFilterChange={(key, value) =>
+          handleFilterChange(key as keyof ChampionFilters, value as ChampionFilters[keyof ChampionFilters])
+        }
         onToggleChampion={handleToggle}
       />
     </>

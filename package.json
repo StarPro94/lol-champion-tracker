@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "catalog:refresh": "node scripts/generate-champion-catalog.mjs",
     "convex:codegen": "convex codegen --typecheck disable"
   },
   "dependencies": {

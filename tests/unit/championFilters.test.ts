@@ -9,9 +9,13 @@ const champions: ChampionListItem[] = [
     key: "103",
     name: "Ahri",
     title: "the Nine-Tailed Fox",
+    titleFr: "Renarde a neuf queues",
     imageUrl: "https://example.com/ahri.png",
+    splashImageUrl: "https://example.com/ahri-splash.jpg",
     tags: ["Mage", "Assassin"],
+    tagsFr: ["Mage", "Assassin"],
     partype: "Mana",
+    resourceFr: "Mana",
     isValidated: true,
     validatedAt: "2025-03-01T10:00:00.000Z",
   },
@@ -20,9 +24,13 @@ const champions: ChampionListItem[] = [
     key: "201",
     name: "Braum",
     title: "the Heart of the Freljord",
+    titleFr: "Coeur de Freljord",
     imageUrl: "https://example.com/braum.png",
+    splashImageUrl: "https://example.com/braum-splash.jpg",
     tags: ["Support", "Tank"],
+    tagsFr: ["Support", "Tank"],
     partype: "Mana",
+    resourceFr: "Mana",
     isValidated: false,
     validatedAt: null,
   },
@@ -31,9 +39,13 @@ const champions: ChampionListItem[] = [
     key: "86",
     name: "Garen",
     title: "The Might of Demacia",
+    titleFr: "Puissance de Demacia",
     imageUrl: "https://example.com/garen.png",
+    splashImageUrl: "https://example.com/garen-splash.jpg",
     tags: ["Fighter", "Tank"],
+    tagsFr: ["Combattant", "Tank"],
     partype: "None",
+    resourceFr: "Aucune",
     isValidated: true,
     validatedAt: "2025-03-03T10:00:00.000Z",
   },
@@ -58,6 +70,15 @@ describe("applyChampionFilters", () => {
     });
 
     expect(filtered.map((champion) => champion.id)).toEqual(["Ahri"]);
+  });
+
+  it("matches french champion titles in search", () => {
+    const filtered = applyChampionFilters(champions, {
+      ...baseFilters,
+      search: "demacia",
+    });
+
+    expect(filtered.map((champion) => champion.id)).toEqual(["Garen"]);
   });
 
   it("sorts unvalidated champions first", () => {

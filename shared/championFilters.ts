@@ -24,7 +24,15 @@ export function applyChampionFilters(
 
   const filtered = champions.filter((champion) => {
     if (search !== "") {
-      const haystack = `${champion.name} ${champion.title}`.toLocaleLowerCase();
+      const haystack = [
+        champion.name,
+        champion.title,
+        champion.titleFr,
+        champion.tagsFr.join(" "),
+        champion.resourceFr,
+      ]
+        .join(" ")
+        .toLocaleLowerCase();
       if (!haystack.includes(search)) {
         return false;
       }
