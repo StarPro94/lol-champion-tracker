@@ -7,6 +7,12 @@ import { championCatalog } from "../shared/championCatalog";
 import type { ChampionFilters, DwarfTriggerEvent, LegacyMigrationEntry } from "../shared/champions";
 import { createDwarfTriggerEvent, shouldTriggerDwarf } from "../shared/legacyTracker";
 import LocalTrackerShell from "./components/LocalTrackerShell";
+import {
+  DWARF_CELEBRATION_DURATION_MS,
+  DWARF_CELEBRATION_DURATION_SECONDS,
+  getDwarfCelebrationAudio,
+  getRandomAudioStartTime,
+} from "./lib/dwarfCelebration";
 import { readLocalProgress, toggleLocalChampionValidation } from "./lib/localTracker";
 
 const DEFAULT_FILTERS: ChampionFilters = {
@@ -44,9 +50,57 @@ function CelebrationOverlay({
   const reduceMotion = useReducedMotion();
 
   React.useEffect(() => {
-    const timeout = window.setTimeout(onComplete, reduceMotion ? 2200 : 3600);
-    return () => window.clearTimeout(timeout);
-  }, [onComplete, reduceMotion]);
+    const timeout = window.setTimeout(onComplete, DWARF_CELEBRATION_DURATION_MS);
+    const audio = getDwarfCelebrationAudio();
+    let audioStopTimeout: number | undefined;
+    let cancelled = false;
+
+    if (audio === null) {
+      return () => window.clearTimeout(timeout);
+    }
+
+    audio.volume = 1;
+
+    const startAudio = () => {
+      if (cancelled) {
+        return;
+      }
+
+      const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+      audio.currentTime = getRandomAudioStartTime(duration, DWARF_CELEBRATION_DURATION_SECONDS);
+      void audio.play().catch((error) => {
+        console.error("Unable to play dwarf celebration audio", error);
+      });
+
+      audioStopTimeout = window.setTimeout(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }, DWARF_CELEBRATION_DURATION_MS);
+    };
+
+    const handleLoadedMetadata = () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      startAudio();
+    };
+
+    if (audio.readyState >= 1) {
+      startAudio();
+    } else {
+      audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.load();
+    }
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+      if (audioStopTimeout !== undefined) {
+        window.clearTimeout(audioStopTimeout);
+      }
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, [onComplete]);
 
   return (
     <motion.div
@@ -94,9 +148,9 @@ function CelebrationOverlay({
             key={event.timestamp}
             src="/dwarf-dance.mp4"
             autoPlay
-            loop
             muted
             playsInline
+            preload="auto"
             animate={
               reduceMotion
                 ? { scale: 1 }
@@ -132,6 +186,10 @@ export function App() {
   const [filters, setFilters] = useState<ChampionFilters>(DEFAULT_FILTERS);
   const [localProgress, setLocalProgress] = useState<LegacyMigrationEntry[]>(() => getInitialProgress());
   const [celebrationEvent, setCelebrationEvent] = useState<DwarfTriggerEvent | null>(null);
+
+  React.useEffect(() => {
+    getDwarfCelebrationAudio();
+  }, []);
 
   const mergedChampions = useMemo(() => {
     return mergeCatalogWithProgress(championCatalog.champions, localProgress);
