@@ -8,8 +8,10 @@ import type { ChampionFilters, DwarfTriggerEvent, LegacyMigrationEntry } from ".
 import { createDwarfTriggerEvent, shouldTriggerDwarf } from "../shared/legacyTracker";
 import LocalTrackerShell from "./components/LocalTrackerShell";
 import {
+  DWARF_AUDIO_FADE_DURATION_MS,
   DWARF_CELEBRATION_DURATION_MS,
   DWARF_CELEBRATION_DURATION_SECONDS,
+  getCelebrationAudioVolume,
   getDwarfCelebrationAudio,
   getRandomAudioStartTime,
 } from "./lib/dwarfCelebration";
@@ -53,6 +55,7 @@ function CelebrationOverlay({
     const timeout = window.setTimeout(onComplete, DWARF_CELEBRATION_DURATION_MS);
     const audio = getDwarfCelebrationAudio();
     let audioStopTimeout: number | undefined;
+    let fadeInterval: number | undefined;
     let cancelled = false;
 
     if (audio === null) {
@@ -68,11 +71,27 @@ function CelebrationOverlay({
 
       const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
       audio.currentTime = getRandomAudioStartTime(duration, DWARF_CELEBRATION_DURATION_SECONDS);
+      audio.volume = 0;
+
+      const startTime = performance.now();
+      fadeInterval = window.setInterval(() => {
+        const elapsedMs = performance.now() - startTime;
+        audio.volume = getCelebrationAudioVolume(
+          elapsedMs,
+          DWARF_CELEBRATION_DURATION_MS,
+          DWARF_AUDIO_FADE_DURATION_MS,
+        );
+      }, 50);
+
       void audio.play().catch((error) => {
         console.error("Unable to play dwarf celebration audio", error);
       });
 
       audioStopTimeout = window.setTimeout(() => {
+        if (fadeInterval !== undefined) {
+          window.clearInterval(fadeInterval);
+        }
+        audio.volume = 0;
         audio.pause();
         audio.currentTime = 0;
       }, DWARF_CELEBRATION_DURATION_MS);
@@ -96,7 +115,11 @@ function CelebrationOverlay({
       if (audioStopTimeout !== undefined) {
         window.clearTimeout(audioStopTimeout);
       }
+      if (fadeInterval !== undefined) {
+        window.clearInterval(fadeInterval);
+      }
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.volume = 0;
       audio.pause();
       audio.currentTime = 0;
     };

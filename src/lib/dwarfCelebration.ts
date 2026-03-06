@@ -1,5 +1,6 @@
 export const DWARF_CELEBRATION_DURATION_SECONDS = 7;
 export const DWARF_CELEBRATION_DURATION_MS = DWARF_CELEBRATION_DURATION_SECONDS * 1000;
+export const DWARF_AUDIO_FADE_DURATION_MS = 450;
 
 let dwarfCelebrationAudio: HTMLAudioElement | null = null;
 
@@ -47,4 +48,31 @@ export function getDwarfCelebrationAudio(): HTMLAudioElement | null {
   }
 
   return dwarfCelebrationAudio;
+}
+
+export function getCelebrationAudioVolume(
+  elapsedMs: number,
+  totalDurationMs = DWARF_CELEBRATION_DURATION_MS,
+  fadeDurationMs = DWARF_AUDIO_FADE_DURATION_MS,
+): number {
+  if (totalDurationMs <= 0 || fadeDurationMs <= 0) {
+    return 1;
+  }
+
+  const effectiveFadeDuration = Math.min(fadeDurationMs, totalDurationMs / 2);
+
+  if (elapsedMs <= 0) {
+    return 0;
+  }
+
+  if (elapsedMs < effectiveFadeDuration) {
+    return elapsedMs / effectiveFadeDuration;
+  }
+
+  const remainingMs = totalDurationMs - elapsedMs;
+  if (remainingMs < effectiveFadeDuration) {
+    return Math.max(remainingMs / effectiveFadeDuration, 0);
+  }
+
+  return 1;
 }
